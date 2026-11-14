@@ -1,0 +1,29 @@
+# BMAD framework configuration. Edited by /bmad-init; safe to edit by hand.
+
+project_name: ""            # set by /bmad-init
+track: standard             # quick | standard | enterprise  (see bmad/lifecycle.md)
+output_root: docs
+communication_language: English
+document_language: English
+
+developer:
+  max_parallel: 3           # how many developer agents /bmad-sprint may run at once
+  require_worktree_for_parallel: true   # parallel devs only inside a git repository
+  test_command: ""          # e.g. "npm test" — filled in by the architect
+  lint_command: ""
+  build_command: ""
+
+gates:
+  require_human_approval: true   # every gate ends with an explicit question to the user
+  story_review_by_qa: true       # each story is reviewed by qa-tester before "done"
+
+paths:
+  status: docs/bmad-status.yaml
+  discovery: docs/01-discovery
+  planning: docs/02-planning
+  solutioning: docs/03-solutioning
+  implementation: docs/04-implementation
+  stories: docs/04-implementation/stories
+  release: docs/05-release
+  operate: docs/06-operate
+  user_docs: docs/user-guide
