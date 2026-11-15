@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "BMAD agentic product framework: ten specialist agents, enforced quality gates, tests-first development and an autopilot covering the product lifecycle from requirements to go-live.",
   "author": {
-    "name": "mliebski"
+    "name": "Michael Liebeskind"
   },
   "repository": "https://github.com/mliebski/bmad-agentic-framework",
   "keywords": [
