@@ -85,3 +85,35 @@ What it showed, and what to fix next:
   short of its target.
 - **The harness cannot resume** a stopped run; `--score-only` scores a folder that was
   continued by hand.
+
+## Second run (2026-11-15) — Sonnet 5.5, saved as the baseline
+
+Same project and target, fresh run, started with `--model claude-sonnet-5-5` through
+`BMAD_EVAL_CLAUDE_ARGS`. The agents set no model of their own, so they inherit it.
+
+| | First run (Fable 5.2) | Second run (Sonnet 5.5) |
+|---|---|---|
+| Finished | No — stopped at the usage limit three times | Yes — one session |
+| Gates | G1, G2 passed; G3 open | G1, G2, G3 passed |
+| Score | 0.80 (interim) | 0.97 |
+| Time | more than 90 minutes | 30 minutes |
+| Usage (USD-equivalent) | about 38 for three sessions, plus the first | about 6.25 |
+| Requirements / stories / ADRs | 24 / 10 / 7 | 22 / 18 / 5 |
+| PRD length | about 21,600 words | about 7,500 words |
+| Open questions recorded | 56 | 3 |
+
+Read the score with care:
+
+- The second run stayed proportionate to a two-week tool, which is most of why it finished.
+- Its adversarial reviewer was milder. The first run rated the hosted-merge conflict problem
+  critical and kept G3 shut; the second logged "merge behaviour is still unmeasured",
+  downgraded it to minor and marked it resolved although the merge experiment never ran.
+- So part of the higher score is an easier review, not better work. **The deterministic
+  score rewards passing gates and does not measure reviewer depth.** Until the harness has a
+  planted-flaw check, use `--judge` and read the review files when comparing models.
+- The second run wrote no `research.md`, left one fixed major finding without a re-review,
+  and both runs exceed the expected maximum of 16 requirements.
+- One run per model is an indication, not a result.
+
+`baseline.json` holds the second run. Compare against it only for runs on the same model
+and without `--judge`.

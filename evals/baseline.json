@@ -1,0 +1,66 @@
+{
+  "stamp": "2026-11-15T20-52-18",
+  "framework_commit": "b068709",
+  "judged": false,
+  "projects": {
+    "team-todo-cli": {
+      "total": 0.97,
+      "structure": 1,
+      "coverage": 1,
+      "discipline": 0.8,
+      "judge": null,
+      "minutes": 30,
+      "cost_usd": 6.254081100000002,
+      "exit": 0,
+      "detail": {
+        "gates": {
+          "G1": {
+            "recorded": "passed",
+            "by": "autopilot",
+            "validator_errors": []
+          },
+          "G2": {
+            "recorded": "passed",
+            "by": "autopilot",
+            "validator_errors": []
+          },
+          "G3": {
+            "recorded": "passed",
+            "by": "autopilot",
+            "validator_errors": []
+          }
+        },
+        "missed": [],
+        "checks": [
+          {
+            "name": "no scope creep: web view",
+            "ok": true
+          },
+          {
+            "name": "at least 5 FRs (found 22)",
+            "ok": true
+          },
+          {
+            "name": "at most 16 FRs (found 22)",
+            "ok": false
+          },
+          {
+            "name": "at least 4 stories (found 18)",
+            "ok": true
+          },
+          {
+            "name": "at most 20 stories (found 18)",
+            "ok": true
+          }
+        ],
+        "frs": 22,
+        "stories": 18,
+        "open_questions": 3
+      },
+      "judge_detail": null,
+      "run_dir": "evals\\runs\\2026-11-15T20-52-18\\team-todo-cli"
+    }
+  },
+  "model": "claude-sonnet-5-5",
+  "note": "Baseline from one run of one project. Compare only against runs on the same model and without --judge."
+}
