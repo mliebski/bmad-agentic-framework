@@ -117,3 +117,36 @@ Read the score with care:
 
 `baseline.json` holds the second run. Compare against it only for runs on the same model
 and without `--judge`.
+
+## Third attempt (2026-11-15) — build phase to G5 did not complete
+
+The Sonnet run above was continued from G3 toward G5 (`--to G5`), after installing Go.
+It did not get past the first story. 0 of 18 stories were completed; about 1.50 USD-equivalent
+of usage was spent over two attempts. The baseline is unchanged and still planning-only.
+
+What happened, in order:
+
+1. **A human-only step.** The first story required a merge experiment (about 900 throw-away
+   git repositories). The agents ran it in Windows Git Bash, where one of nine sets took
+   about 25 minutes, so the story was correctly marked blocked and the run stopped.
+2. **The experiment was run by people.** It took about four minutes on Linux (WSL), needing
+   a one-line stand-in for a missing `git init -b` on git 2.25.1. The operator's run:
+   additions in different places never conflicted (300 of 300 clean); additions at random
+   places conflicted 6 times in 100; additions at the same place always conflicted; with
+   `merge=union` same-place additions merged cleanly. Merges performed by a hosting
+   service's button were **not** measured, and that was the risk the first run's reviewer
+   had rated critical.
+3. **QA could not verify the build.** The headless agents were refused `go build`,
+   `go vet` and `go test`, although `go` was on the allowed list and installed. QA's verdict
+   was CONCERNS, which only a human can accept. The checks were run by hand afterwards and
+   passed. The cause of the refusal is not established.
+
+What it showed:
+
+- The gates and verdict rules held: an unverifiable story was not marked done.
+- The build phase is **not yet reliable unattended**. It depends on a language toolchain, on
+  the headless permission setup, and on a human for slow or sensitive steps.
+- Getting the agents past this would mean running them without permission checks, which is
+  a decision for the operator, not a default.
+- `evals/run.mjs --score-only <dir> --project <name> --to G5` now scores a run folder against
+  a later target gate.

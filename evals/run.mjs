@@ -89,7 +89,8 @@ function main() {
   if (flag('score-only')) {
     const name = flag('project');
     if (!name || name === true) { console.error('--score-only <dir> needs --project <name> for the expectations'); return 1; }
-    const s = score(path.resolve(String(flag('score-only'))), loadExp(name));
+    const exp = loadExp(name);
+    const s = score(path.resolve(String(flag('score-only'))), { ...exp, target: (flag('to') && flag('to') !== true ? flag('to') : exp.target) });
     console.log(JSON.stringify({ project: name, total: round(total(s, null)), ...s }, null, 2));
     return 0;
   }
