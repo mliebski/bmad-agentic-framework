@@ -1,0 +1,28 @@
+{
+  "description": "BMAD gate enforcement: protects state files, locked acceptance tests and story boundaries; refuses developers before G3.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/bmad/tools/bmad.mjs\" hook",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/bmad/tools/bmad.mjs\" hook",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

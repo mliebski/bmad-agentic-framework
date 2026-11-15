@@ -1,0 +1,101 @@
+{
+ "name": "chore",
+ "track": "standard",
+ "target": "G3",
+ "must_cover": [
+  {
+   "name": "merge-friendly file format",
+   "any_of": [
+    "merge conflict",
+    "merge cleanly",
+    "merge-friendly",
+    "one task per line",
+    "line-based",
+    "append-only"
+   ]
+  },
+  {
+   "name": "exit code for CI",
+   "any_of": [
+    "exit code",
+    "non-zero",
+    "nonzero",
+    "exit status"
+   ]
+  },
+  {
+   "name": "recurring tasks",
+   "any_of": [
+    "recurring",
+    "recurrence"
+   ]
+  },
+  {
+   "name": "due dates",
+   "any_of": [
+    "due date",
+    "overdue"
+   ]
+  },
+  {
+   "name": "cross-platform",
+   "any_of": [
+    "windows",
+    "cross-platform",
+    "cross platform"
+   ]
+  },
+  {
+   "name": "performance number",
+   "any_of": [
+    "200 ms",
+    "200ms"
+   ]
+  },
+  {
+   "name": "scale number",
+   "any_of": [
+    "5,000",
+    "5000"
+   ]
+  },
+  {
+   "name": "no network",
+   "any_of": [
+    "no network",
+    "offline",
+    "without network"
+   ]
+  },
+  {
+   "name": "error messages",
+   "any_of": [
+    "error message"
+   ]
+  },
+  {
+   "name": "time zones or date parsing",
+   "any_of": [
+    "time zone",
+    "timezone",
+    "iso 8601",
+    "date format",
+    "utc"
+   ]
+  }
+ ],
+ "must_not_be_in_mvp": [
+  {
+   "name": "web view",
+   "any_of": [
+    "web dashboard",
+    "web view is in scope",
+    "web ui (mvp)"
+   ]
+  }
+ ],
+ "min_frs": 5,
+ "max_frs": 16,
+ "min_stories": 4,
+ "max_stories": 20
+}

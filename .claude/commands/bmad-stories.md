@@ -8,9 +8,9 @@ Create epics and stories. Input: $ARGUMENTS
 **Standard / enterprise track**
 1. `docs/02-planning/prd.md` and `docs/03-solutioning/architecture.md` must exist.
 2. Delegate to `product-manager`: write `docs/03-solutioning/epics.md`, one story file per
-   story in `docs/04-implementation/stories/` (template `bmad/templates/story.md`) and
-   `docs/04-implementation/sprint-status.yaml`. Stories must embed the architecture and UX
-   context they need.
+   story in `docs/04-implementation/stories/` (template `bmad/templates/story.md`). Stories
+   must embed the architecture and UX context they need; `node bmad/tools/bmad.mjs context <story>`
+   prints the requirement and decision texts to copy in.
 3. Delegate to `solution-architect` for a quick technical review of the stories: correct
    `touches`, missing technical tasks, dependency order. Apply its corrections through the
    product manager.
@@ -22,4 +22,6 @@ Create epics and stories. Input: $ARGUMENTS
 
 **Both**
 4. Show the user the epic list and story count, and the proposed build order.
-5. Update `docs/bmad-status.yaml`. Next: `/bmad-gate G3`.
+5. Run `node bmad/tools/bmad.mjs validate --gate G3` and `node bmad/tools/bmad.mjs trace`; have the product manager fix
+   what they report (uncovered requirements, stories without criteria or `touches`, cycles).
+   Next: `/bmad-gate G3`.

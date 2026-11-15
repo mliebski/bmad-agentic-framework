@@ -1,20 +1,50 @@
 # BMAD Agentic Product Framework — Guide
 
-A team of eight specialist AI agents that takes a product from requirement gathering to
+A team of specialist AI agents that takes a product from requirement gathering to
 production go-live and back into the next iteration, following BMAD principles:
 document-driven hand-offs, one specialist per concern, phase gates with human approval, and
 self-contained stories for developers.
 
+What sets it apart from a collection of prompts: the rules are **enforced** by a tool and
+hooks, acceptance tests are written and locked **before** the code, every plan is attacked
+by an **adversarial reviewer** before it is approved, and the framework itself is
+**measured** by an eval harness.
+
 It runs in **Claude Code** — the terminal CLI, the desktop app, or the Claude Code extension
-in **Visual Studio Code**. All three read the same `.claude/` folder, so nothing else needs
-installing.
+in **Visual Studio Code**. It needs Node.js 18 or later for the tool and hooks; nothing else.
+
+## Install
+
+**Into a project (recommended).** Clone this repository, then:
+
+```bash
+node bmad/tools/install.mjs /path/to/your/project
+```
+
+It copies the agents, commands and `bmad/` folder, and merges the hook, the MCP server and
+the orchestrator rules into the project's existing `.claude/settings.json`, `.mcp.json` and
+`CLAUDE.md` without overwriting them.
+
+**As a Claude Code plugin.**
+
+```bash
+claude plugin marketplace add mliebski/bmad-agentic-framework
+```
+
+```bash
+claude plugin install bmad@bmad-agentic-framework
+```
+
+As a plugin the commands are namespaced (`/bmad:bmad-init`, `/bmad:bmad-auto`, …) and
+`/bmad:bmad-init` copies the `bmad/` assets into the project on first use.
+
+**In this repository.** Just open it in Claude Code; everything is already in place.
 
 ## Quick start
 
-1. Open this folder in Claude Code (in VS Code: install the "Claude Code" extension, open
-   the folder, open the Claude panel).
-2. Run `/bmad-init My Product — one-line idea`.
-3. Follow `/bmad-help` — it always names the next command.
+1. `/bmad-init My Product — one-line idea`
+2. `/bmad-auto` — the framework works to the next gate and stops for your decision.
+   Or drive it step by step; `/bmad-help` always names the next command.
 
 ## The team
 
@@ -22,93 +52,155 @@ installing.
 |---|---|---|
 | `business-analyst` | Discovery and requirements | Project brief, research, requirements, feedback log |
 | `product-manager` | What and why | PRD, epics, stories, backlog priorities |
-| `ux-specialist` | Experience design | UX spec — flows, wireframes, states, accessibility |
+| `ux-specialist` | Experience design | UX spec, clickable prototype |
 | `solution-architect` | How it is built and run | Architecture, ADRs, runbook, go-live checklist |
-| `developer` | Implementation — **spawnable in parallel** | Code, tests, Dev Record in the story |
-| `qa-tester` | Independent verification | Test strategy, story reviews, release QA report |
+| `developer` | Implementation — **spawnable in parallel** | Code, unit tests, Dev Record in the story |
+| `qa-tester` | Independent verification | Test strategy, **acceptance tests before code**, story reviews, release QA report |
 | `documentation-writer` | Docs | README, user guide, API reference, release notes |
 | `marketing-specialist` | Go-to-market | Market positioning, launch plan, launch content |
+| `adversarial-reviewer` | Breaks things on purpose | Findings on PRD, architecture, stories, code |
+| `synthetic-user` | Plays one persona | Friction report from walking the prototype |
 
-The main Claude session is the **orchestrator** (rules in `CLAUDE.md`): it delegates, tracks
-state in `docs/bmad-status.yaml`, and stops at every gate for your decision.
+Extension packs add more: `node bmad/tools/bmad.mjs pack add security` (security
+specialist, threat model, security gate items) and `pack add compliance` (privacy and
+compliance specialist, data inventory, evidence).
+
+The main Claude session is the **orchestrator** (rules in `CLAUDE.md`): it delegates, and
+stops at every gate for your decision.
 
 ## The lifecycle
 
 ```mermaid
 flowchart LR
-  I[/bmad-init/] --> D[1 Discovery<br>/bmad-discover]
-  D -->|G1| P[2 Planning<br>/bmad-prd · /bmad-ux]
-  P -->|G2| S[3 Solutioning<br>/bmad-architect · /bmad-stories]
-  S -->|G3| M[4 Implementation<br>/bmad-sprint · /bmad-qa]
-  M -->|G4 per story| R[5 Release<br>/bmad-release]
-  R -->|G5| G[6 Go-live & operate<br>/bmad-golive · /bmad-retro]
-  G -->|G6 · feedback| D
+  I[/bmad-init/] --> D[1 Discovery]
+  D -->|G1| P[2 Planning<br>PRD · UX · prototype · red-team]
+  P -->|G2| S[3 Solutioning<br>architecture · red-team · stories]
+  S -->|G3| M[4 Implementation<br>tests first · parallel devs · QA]
+  M -->|G4 per story| R[5 Release]
+  R -->|G5| G[6 Go-live & operate]
+  G -->|G6 · feedback · /bmad-improve| D
 ```
 
 | Command | What it does |
 |---|---|
-| `/bmad-init` | Choose track, create `docs/` structure and status file |
+| `/bmad-init` | Choose track, create `docs/` structure and status |
 | `/bmad-help` | Where are we, what is next |
+| `/bmad-auto` | **Autopilot** — run everything up to the next gate (or `to G3`, `all`) |
 | `/bmad-discover` | Business analyst (+ marketing) — brief, research, requirements |
 | `/bmad-prd` | Product manager — PRD |
 | `/bmad-ux` | UX specialist — UX spec |
+| `/bmad-prototype` | Clickable prototype, walked by synthetic users, findings fed back |
+| `/bmad-redteam` | Adversarial review of `prd`, `ux`, `architecture`, `stories` or `code <story>` |
 | `/bmad-architect` | Architect — architecture and ADRs; QA — test strategy |
 | `/bmad-stories` | Product manager — epics and self-contained stories |
-| `/bmad-gate G1..G6` | Run a gate checklist and record your approve / reject / waive |
-| `/bmad-sprint` | Spawn developers in parallel, then QA-review each story |
-| `/bmad-qa` | Review a story, or run release QA |
+| `/bmad-gate G1..G6` | Machine checks, judgement checks, then your approve / reject / waive |
+| `/bmad-sprint` | QA writes and locks acceptance tests → developers in parallel → QA review |
+| `/bmad-qa` | Acceptance tests for a story, review a story, or release QA |
 | `/bmad-release` | QA report, documentation, runbook, launch plan |
 | `/bmad-golive` | Go-live checklist, go/no-go, guided cut-over, hypercare |
 | `/bmad-retro` | Retrospective and feedback into the next iteration |
-| `/bmad-change` | Course correction across PRD, architecture and stories |
+| `/bmad-improve` | Evidence-based proposals to improve the framework's own agents and gates |
+| `/bmad-change` | Course correction across PRD, architecture and stories, starting from computed impact |
 | `/bmad-party` | Roundtable — several agents weigh in on one question |
 
-Details: `bmad/lifecycle.md` (phases, tracks, status file format) and `bmad/gates.md`
-(gate checklists).
+Details: `bmad/lifecycle.md` (phases, tracks, what is enforced) and `bmad/gates.md`
+(gate checklists; items marked ⚙ are machine-checked).
+
+## What makes the output trustworthy
+
+**Enforced gates.** `node bmad/tools/bmad.mjs` owns the project state. It refuses to record
+a gate as passed while its checks fail (missing artifacts, requirements without acceptance
+criteria, NFRs without numbers, must-have requirements with no story, dependency cycles,
+unresolved critical review findings, …). Hooks stop developers from starting before G3,
+from editing outside their story, and anyone from hand-editing the state.
+
+**Tests before code.** For each story QA writes executable acceptance tests from the
+acceptance criteria, sees them fail, and locks them (file hashes). The developer's job is to
+make them pass; edits to locked tests are blocked, and tampering through the shell is
+caught by the hash check when the story is closed and again at release.
+
+**Adversarial review.** The PRD and the architecture must each survive a reviewer whose
+only job is to break them. Gates G2 and G3 stay shut while a critical finding is open,
+unless you accept the risk.
+
+**Prototype first.** The key flows become a clickable single-file prototype in phase 2 and
+are walked by synthetic personas before any architecture exists. This is a cheap first
+filter; it does not replace watching one real user.
+
+## Autonomy
+
+`/bmad-auto` chains the steps of a phase, fixes what the validator reports, batches the
+agents' questions, and stops at the gate. In `bmad/config.yaml`, `autopilot.auto_pass`
+lists gates it may pass on its own when the checks are clean — empty by default. It can
+never pass G6: go-live is always a human decision, and no agent deploys.
+
+Unattended: `claude -p "/bmad-auto to G3 --answers answers.md"` with an answers file.
+
+## Requirements graph
+
+`node bmad/tools/bmad.mjs trace` — every requirement with its stories, decisions and tests.
+`impact FR-3` — what is affected if it changes. `context E1-S2` — the requirement and
+decision texts a story must embed. The same is available to the agents as MCP tools
+(`bmad_trace`, `bmad_impact`, `bmad_story_context`, `bmad_wave`, `bmad_validate`, …)
+through the bundled zero-dependency MCP server (`.mcp.json`). The graph is an index derived
+from the documents on every call; the documents remain the source of truth.
+
+## Measuring and improving the framework
+
+- **`evals/`** — reference projects run headless and scored (gate structure, required
+  coverage, scope discipline, optional LLM judge). Run it before and after changing any
+  agent, template or gate: `node evals/run.mjs`. See `evals/README.md`.
+- **`/bmad-improve`** — reads a project's metrics (`docs/bmad-metrics.jsonl`: every gate
+  failure, refusal and story bounce), finds recurring causes, and writes a proposal with the
+  exact change to an agent or template. Nothing is applied automatically; check the
+  proposal against the evals first.
 
 ## How developers spawn
 
-- **`/bmad-sprint`** — the orchestrator reads `sprint-status.yaml`, picks `ready` stories
-  whose dependencies are done and whose `touches` lists do not overlap, and starts one
-  `developer` agent per story in parallel (up to `developer.max_parallel` in
-  `bmad/config.yaml`). In a git repository each developer works in its own worktree and
-  branch; you approve the merges. Without git, stories run one at a time.
-- **Lead developer session** — start `claude --agent developer` in a terminal. As the main
-  session the developer agent can spawn worker `developer` agents itself for an epic.
-  (Claude Code does not let a subagent spawn further subagents, which is why fan-out happens
-  from the main session in both modes.)
+`/bmad-sprint` asks the tool for the next **wave**: ready stories whose dependencies are
+done, whose acceptance tests are locked, and whose `touches` do not overlap. It starts one
+`developer` per story in parallel (up to `developer.max_parallel`). In a git repository
+each works in its own worktree and branch, and you approve the merges; without git, stories
+run one at a time. A `developer` given a whole epic acts as lead and spawns workers itself.
 
 ## Tracks
 
 `quick` (bug fix or small feature, 1–5 stories), `standard` (a product or large feature),
-`enterprise` (regulated or high-availability; adds threat model, performance plan, rollback
-rehearsal). Set by `/bmad-init`, stored in `bmad/config.yaml`.
+`enterprise` (regulated or high-availability; add the security and compliance packs).
 
 ## Safety model
 
 - Every gate ends with an explicit question to you; approval is never inferred.
 - No agent deploys, migrates shared data, pushes, merges, or publishes marketing content.
-  Agents write the runbook and the drafts; you run and send them.
 - QA re-runs tests itself and reports failures as failures.
+- The hooks are guardrails against drift, not a security sandbox: they see file-edit tools,
+  not shell commands.
 
 ## Folder layout
 
 ```
 CLAUDE.md                 orchestrator rules
-.claude/agents/           the eight agents
+.claude/agents/           the agents
 .claude/commands/         /bmad-* commands
-bmad/config.yaml          track, paths, developer settings
-bmad/lifecycle.md         phases, tracks, status format
+.claude/settings.json     hook registration
+.mcp.json                 BMAD MCP server registration
+.claude-plugin/, hooks/   plugin and marketplace manifests
+bmad/config.yaml          track, developer, gate, review and autopilot settings
+bmad/lifecycle.md         phases, tracks, enforcement, state
 bmad/gates.md             gate checklists G1–G6
 bmad/templates/           document templates
+bmad/tools/               bmad.mjs (CLI + hook), mcp-server.mjs, install.mjs
+bmad/packs/               extension packs
+bmad/improvements/        proposals from /bmad-improve
+evals/                    eval harness and reference projects
 docs/                     created by /bmad-init — all project artifacts
 ```
 
 ## Customising
 
-- Change an agent's behaviour: edit its file in `.claude/agents/` (plain Markdown).
-- Add an agent (e.g. security or data specialist): add a file there, then reference it in
-  the relevant command and in `CLAUDE.md`.
-- Tighten or relax a gate: edit `bmad/gates.md`.
-- Adapt a document: edit its template in `bmad/templates/`.
-- Use it in another project: copy `CLAUDE.md`, `.claude/` and `bmad/` into that repository.
+- Change an agent's behaviour: edit its file in `.claude/agents/` — then run the evals.
+- Add a pack: a folder in `bmad/packs/` with `pack.json`, `agents/*.md` and `gates.md`.
+- Tighten or relax a gate: edit `bmad/gates.md`; machine checks live in `validate()` in
+  `bmad/tools/bmad.mjs`.
+- Turn enforcement down for a project: `developer.tests_first`, `developer.enforce_touches`,
+  `reviews.required`, `gates.ux_required` in `bmad/config.yaml`.

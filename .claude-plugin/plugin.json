@@ -1,0 +1,30 @@
+{
+  "name": "bmad",
+  "version": "0.2.0",
+  "description": "BMAD agentic product framework: ten specialist agents, enforced quality gates, tests-first development and an autopilot covering the product lifecycle from requirements to go-live.",
+  "author": {
+    "name": "mliebski"
+  },
+  "repository": "https://github.com/mliebski/bmad-agentic-framework",
+  "keywords": [
+    "bmad",
+    "product-management",
+    "agents",
+    "sdlc",
+    "quality-gates"
+  ],
+  "commands": "./.claude/commands",
+  "agents": [
+    "./.claude/agents/adversarial-reviewer.md",
+    "./.claude/agents/business-analyst.md",
+    "./.claude/agents/developer.md",
+    "./.claude/agents/documentation-writer.md",
+    "./.claude/agents/marketing-specialist.md",
+    "./.claude/agents/product-manager.md",
+    "./.claude/agents/qa-tester.md",
+    "./.claude/agents/solution-architect.md",
+    "./.claude/agents/synthetic-user.md",
+    "./.claude/agents/ux-specialist.md"
+  ],
+  "license": "MIT"
+}

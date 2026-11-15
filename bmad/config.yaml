@@ -1,29 +1,30 @@
 # BMAD framework configuration. Edited by /bmad-init; safe to edit by hand.
+# Read by bmad/tools/bmad.mjs — keep to simple "key: value" lines and inline [lists].
 
-project_name: ""            # set by /bmad-init
+project_name: ""
 track: standard             # quick | standard | enterprise  (see bmad/lifecycle.md)
-output_root: docs
 communication_language: English
 document_language: English
 
 developer:
-  max_parallel: 3           # how many developer agents /bmad-sprint may run at once
+  max_parallel: 3           # how many developer agents one wave may run at once
   require_worktree_for_parallel: true   # parallel devs only inside a git repository
-  test_command: ""          # e.g. "npm test" — filled in by the architect
+  test_command: ""          # e.g. "npm test" — filled in by the architect; G3 fails while empty
   lint_command: ""
   build_command: ""
+  tests_first: true         # QA writes and locks failing acceptance tests before a developer starts
+  acceptance_tests_dir: tests/acceptance
+  enforce_touches: true     # hook blocks developer edits outside the story's touches list
+  shared_files: []          # files any story may edit, e.g. [package.json, package-lock.json]
 
 gates:
   require_human_approval: true   # every gate ends with an explicit question to the user
-  story_review_by_qa: true       # each story is reviewed by qa-tester before "done"
+  story_review_by_qa: true       # a story cannot be done without a QA verdict
+  ux_required: true              # set false for products with no user interface
 
-paths:
-  status: docs/bmad-status.yaml
-  discovery: docs/01-discovery
-  planning: docs/02-planning
-  solutioning: docs/03-solutioning
-  implementation: docs/04-implementation
-  stories: docs/04-implementation/stories
-  release: docs/05-release
-  operate: docs/06-operate
-  user_docs: docs/user-guide
+reviews:
+  required: [prd, architecture]  # adversarial reviews that must exist with 0 unresolved criticals
+
+autopilot:
+  auto_pass: []             # gates /bmad-auto may pass itself when the validator is clean, e.g. [G1, G2]. Never G6.
+  max_rework: 2             # times a story may bounce between developer and QA before a human is asked

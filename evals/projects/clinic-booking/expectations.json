@@ -1,0 +1,145 @@
+{
+ "name": "ClinicSlot",
+ "track": "enterprise",
+ "target": "G3",
+ "must_cover": [
+  {
+   "name": "GDPR / special category data",
+   "any_of": [
+    "gdpr",
+    "special category",
+    "special-category"
+   ]
+  },
+  {
+   "name": "EU data residency",
+   "any_of": [
+    "data residency",
+    "stay in the eu",
+    "within the eu",
+    "eu region",
+    "eu-hosted",
+    "hosted in the eu"
+   ]
+  },
+  {
+   "name": "audit trail",
+   "any_of": [
+    "audit trail",
+    "audit log",
+    "access log"
+   ]
+  },
+  {
+   "name": "log retention six years",
+   "any_of": [
+    "six years",
+    "6 years",
+    "6-year",
+    "six-year"
+   ]
+  },
+  {
+   "name": "double booking prevention",
+   "any_of": [
+    "double booking",
+    "double-booking",
+    "concurrency",
+    "race condition",
+    "optimistic lock",
+    "idempot"
+   ]
+  },
+  {
+   "name": "upstream system unavailable",
+   "any_of": [
+    "unavailable",
+    "outage",
+    "circuit breaker",
+    "retry",
+    "degraded",
+    "fallback"
+   ]
+  },
+  {
+   "name": "rate limit of upstream",
+   "any_of": [
+    "rate limit",
+    "10 requests",
+    "throttl"
+   ]
+  },
+  {
+   "name": "identity verification",
+   "any_of": [
+    "identity verification",
+    "verify identity",
+    "verification code",
+    "one-time",
+    "otp",
+    "multi-factor",
+    "two-factor"
+   ]
+  },
+  {
+   "name": "accessibility",
+   "any_of": [
+    "wcag"
+   ]
+  },
+  {
+   "name": "reminders",
+   "any_of": [
+    "reminder"
+   ]
+  },
+  {
+   "name": "data export and deletion",
+   "any_of": [
+    "erasure",
+    "deletion",
+    "right to be forgotten",
+    "data export",
+    "portability"
+   ]
+  },
+  {
+   "name": "threat model",
+   "any_of": [
+    "threat model"
+   ]
+  },
+  {
+   "name": "penetration test",
+   "any_of": [
+    "penetration test",
+    "pen test",
+    "pentest"
+   ]
+  },
+  {
+   "name": "availability number",
+   "any_of": [
+    "99.9"
+   ]
+  },
+  {
+   "name": "encryption",
+   "any_of": [
+    "encrypt"
+   ]
+  },
+  {
+   "name": "rollback",
+   "any_of": [
+    "rollback",
+    "roll back"
+   ]
+  }
+ ],
+ "must_not_be_in_mvp": [],
+ "min_frs": 8,
+ "max_frs": 30,
+ "min_stories": 10,
+ "max_stories": 50
+}

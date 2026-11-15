@@ -5,7 +5,9 @@ status: draft            # draft | ready | in-progress | review | done | blocked
 epic: E{x}
 requirements: [FR-n]
 depends_on: []           # story ids that must be done first
-touches: []              # files or directories this story changes — used for parallel planning
+touches: []              # files or directories this story changes, including its unit tests — enforced
+acceptance_tests: []     # filled by qa-tester before development: files or folders, then locked
+tests_exempt_reason: ""  # only for stories that cannot have acceptance tests yet (e.g. project scaffolding)
 ---
 
 # E{x}-S{y}: {title}

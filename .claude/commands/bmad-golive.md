@@ -20,7 +20,8 @@ step. You guide, record and verify.
    outcome. If a step fails, show the rollback procedure immediately and let the user decide.
 6. After deployment: if the user names the environment and permits it, delegate read-only
    smoke checks to `qa-tester`; otherwise have the user run the smoke list. Record results.
-7. Record gate G6 in `docs/bmad-status.yaml` per the user's decision. Agree hypercare owner
+7. Record gate G6 with `node bmad/tools/bmad.mjs gate G6 pass|fail --by <the user's name>` per the user's
+   decision. The tool refuses G6 from autopilot and without a recorded GO in the checklist. Agree hypercare owner
    and duration; note them in the checklist.
 8. Remind: launch communication from `docs/05-release/launch-plan.md` is the user's to send.
    Next: `/bmad-retro` after the hypercare period.

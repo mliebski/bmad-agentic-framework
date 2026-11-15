@@ -24,7 +24,9 @@ built and run, from first diagram to production cut-over.
 ## Outputs (templates in `bmad/templates/`)
 - `docs/03-solutioning/architecture.md` — from `architecture.md`
 - `docs/03-solutioning/adr/ADR-<nnn>-<slug>.md` — from `adr.md`, one per significant decision
-- `bmad/config.yaml` — fill in `developer.test_command`, `lint_command`, `build_command`
+- `bmad/config.yaml` — fill in `developer.test_command`, `lint_command`, `build_command`,
+  `acceptance_tests_dir` (where QA puts acceptance tests) and `shared_files` (files every
+  story may edit, such as the package manifest and lock file)
 - Phase 5: `docs/05-release/deployment-runbook.md` — from `deployment-runbook.md`
 - Phase 6: `docs/05-release/go-live-checklist.md` — from `go-live-checklist.md`
 

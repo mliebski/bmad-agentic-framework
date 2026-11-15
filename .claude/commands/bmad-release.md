@@ -5,8 +5,8 @@ argument-hint: [version, e.g. 1.0.0, and target date]
 
 Prepare the release. Input: $ARGUMENTS
 
-1. Read `docs/bmad-status.yaml` and `sprint-status.yaml`. List stories not `done`; ask the
-   user whether to defer them (they go into the release notes as deferred) or stop.
+1. Run `node bmad/tools/bmad.mjs stories`. List stories not `done`; ask the user whether to defer them
+   (`node bmad/tools/bmad.mjs story <id> deferred` — they go into the release notes as deferred) or stop.
 2. Delegate in parallel:
    - `qa-tester` (release QA) → `docs/05-release/qa-report.md`
    - `documentation-writer` → `README.md`, `docs/user-guide/`, `docs/05-release/release-notes.md`
@@ -16,4 +16,4 @@ Prepare the release. Input: $ARGUMENTS
    (Quick track: skip unless the user asks.)
 4. If QA's verdict is FAIL, stop: list the defects and recommend creating fix stories with
    `/bmad-stories` and running `/bmad-sprint`.
-5. Update `docs/bmad-status.yaml`. Next: `/bmad-gate G5`.
+5. Record each artifact with `node bmad/tools/bmad.mjs artifact <path> review`. Next: `/bmad-gate G5`.

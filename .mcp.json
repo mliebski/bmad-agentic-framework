@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "bmad": {
+      "command": "node",
+      "args": [
+        "bmad/tools/mcp-server.mjs"
+      ]
+    }
+  }
+}

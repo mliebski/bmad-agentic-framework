@@ -1,0 +1,113 @@
+{
+ "name": "Shortly",
+ "track": "standard",
+ "target": "G3",
+ "must_cover": [
+  {
+   "name": "redirect latency number",
+   "any_of": [
+    "100 ms",
+    "100ms",
+    "p95"
+   ]
+  },
+  {
+   "name": "availability number",
+   "any_of": [
+    "99.9"
+   ]
+  },
+  {
+   "name": "custom alias",
+   "any_of": [
+    "custom alias",
+    "alias"
+   ]
+  },
+  {
+   "name": "alias collision / uniqueness",
+   "any_of": [
+    "collision",
+    "unique",
+    "already taken",
+    "already in use",
+    "conflict"
+   ]
+  },
+  {
+   "name": "click counting",
+   "any_of": [
+    "click count",
+    "clicks per",
+    "click analytics",
+    "click statistics"
+   ]
+  },
+  {
+   "name": "no IP storage / privacy",
+   "any_of": [
+    "ip address",
+    "gdpr",
+    "personal data"
+   ]
+  },
+  {
+   "name": "disable a link",
+   "any_of": [
+    "disable",
+    "deactivate"
+   ]
+  },
+  {
+   "name": "authentication",
+   "any_of": [
+    "sso",
+    "single sign-on",
+    "oauth",
+    "oidc",
+    "sign-in",
+    "sign in",
+    "authentication"
+   ]
+  },
+  {
+   "name": "phishing / abuse",
+   "any_of": [
+    "phishing",
+    "abuse",
+    "malicious"
+   ]
+  },
+  {
+   "name": "links never reassigned",
+   "any_of": [
+    "reassign",
+    "never reused",
+    "not be reused",
+    "never be reused",
+    "immutable"
+   ]
+  },
+  {
+   "name": "rollback",
+   "any_of": [
+    "rollback",
+    "roll back"
+   ]
+  },
+  {
+   "name": "hosting budget",
+   "any_of": [
+    "50 eur",
+    "\u20ac50",
+    "50 \u20ac",
+    "eur 50"
+   ]
+  }
+ ],
+ "must_not_be_in_mvp": [],
+ "min_frs": 5,
+ "max_frs": 18,
+ "min_stories": 5,
+ "max_stories": 25
+}

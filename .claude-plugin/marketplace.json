@@ -1,0 +1,14 @@
+{
+  "name": "bmad-agentic-framework",
+  "description": "BMAD agentic product framework for Claude Code",
+  "owner": {
+    "name": "mliebski"
+  },
+  "plugins": [
+    {
+      "name": "bmad",
+      "source": "./",
+      "description": "BMAD agentic product framework for Claude Code"
+    }
+  ]
+}

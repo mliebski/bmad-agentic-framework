@@ -17,26 +17,44 @@ human approval.
    closing a gate, changing scope, or anything touching production.
 5. **Self-contained stories.** A developer agent receives exactly one story file that already
    holds all the context it needs. If a story is not self-contained, fix the story, not the prompt.
-6. **Scale-adaptive.** Respect the track in `bmad/config.yaml` (`quick`, `standard`,
+6. **Tests before code.** QA writes and locks failing acceptance tests for a story before a
+   developer starts it. Developers make them pass; they never edit them.
+7. **Adversarial review.** A PRD or architecture is not ready until the `adversarial-reviewer`
+   has tried to break it and no critical finding is left unresolved.
+8. **Scale-adaptive.** Respect the track in `bmad/config.yaml` (`quick`, `standard`,
    `enterprise`). Do not force enterprise ceremony on a quick-track change.
-7. **Course-correct in the open.** When reality diverges from the plan, run `/bmad-change`
+9. **Course-correct in the open.** When reality diverges from the plan, run `/bmad-change`
    so the PRD, architecture and stories are updated together — never patch only the code.
+
+## The BMAD tool owns the state
+
+All lifecycle state is read and changed through `node bmad/tools/bmad.mjs` (run it with
+`help` for the commands). The tool, not you, decides whether a gate can pass.
+
+- Never edit `docs/bmad-status.json`, `docs/04-implementation/test-locks.json` or
+  `docs/bmad-metrics.jsonl` directly — a hook blocks it.
+- `status` to read state · `artifact <path> <state>` after an artifact is written ·
+  `validate --gate <G>` before proposing a gate · `gate <G> pass|fail|waive --by <who>` to
+  record the human's decision · `stories`, `wave`, `story <id> <status>` in phase 4.
+- A story's status lives in its own front matter; there is no separate sprint file.
+- If the tool refuses something (a gate, a story going to `done`, a developer starting),
+  fix the cause it names. Do not work around it; only the human can waive a gate.
+- The same data is available as MCP tools (`bmad_status`, `bmad_trace`, `bmad_impact`, …)
+  when the `bmad` MCP server is enabled.
 
 ## How to operate
 
-- State lives in `docs/bmad-status.yaml`. Read it at the start of any BMAD command and update
-  it after every artifact or gate decision. If it is missing, tell the user to run `/bmad-init`.
+- If `docs/bmad-status.json` is missing, tell the user to run `/bmad-init`.
 - If the user asks "what next?", behave as `/bmad-help`.
 - When delegating, give the agent: the artifact to produce, the input file paths, the template
   path in `bmad/templates/`, and the output path. Nothing else is needed.
-- Run independent agents in parallel (e.g. UX + test strategy; several developers on
-  non-overlapping stories). Run dependent ones in sequence.
-- Parallel developers: one story each, only stories whose `touches:` lists do not overlap.
-  In a git repository spawn each with worktree isolation; without git, run them one at a time.
-- An agent's report is a claim, not proof. Check that the output file exists and the gate
-  checklist is actually satisfied before updating status.
-- Report failures plainly. A failed gate is recorded as `failed` with the reasons — never
-  rounded up to `passed`.
+- Run independent agents in parallel. Run dependent ones in sequence.
+- Parallel developers: take the stories from `wave`, one developer each. In a git repository
+  spawn each with worktree isolation; without git, run them one at a time.
+- An agent's report is a claim, not proof. Check that the output file exists and run
+  `validate` before telling the user anything is done.
+- Report failures plainly. A failed gate is recorded as failed with the reasons — never
+  rounded up to passed.
 
 ## Agents
 
@@ -44,9 +62,11 @@ human approval.
 |---|---|
 | `business-analyst` | Discovery: brief, research, requirements |
 | `product-manager` | PRD, epics, stories, prioritisation, scope decisions |
-| `ux-specialist` | UX spec, flows, wireframes, accessibility |
+| `ux-specialist` | UX spec, flows, wireframes, clickable prototype, accessibility |
 | `solution-architect` | Architecture, ADRs, deployment and runbook |
 | `developer` | Story implementation with tests (spawnable in parallel) |
-| `qa-tester` | Test strategy, story review, release QA gate |
+| `qa-tester` | Test strategy, acceptance tests before code, story review, release QA |
 | `documentation-writer` | User, API and operations docs, release notes |
 | `marketing-specialist` | Positioning, messaging, launch plan |
+| `adversarial-reviewer` | Tries to break an artifact; findings only, never fixes |
+| `synthetic-user` | Walks a prototype as one persona and reports friction |

@@ -20,7 +20,8 @@ never *how*.
 - `docs/02-planning/prd.md` — from `prd.md`. Inputs: everything in `docs/01-discovery/`.
 - `docs/03-solutioning/epics.md` — from `epics.md`. Inputs: PRD, UX spec, architecture.
 - `docs/04-implementation/stories/E<epic>-S<n>-<slug>.md` — from `story.md`, one file per story.
-- `docs/04-implementation/sprint-status.yaml` — one entry per story (format in `bmad/lifecycle.md`).
+- Story state is the `status` field in each story's front matter; set new stories to `ready`
+  once complete. Leave `acceptance_tests` empty — QA fills it.
 
 ## Writing stories
 A story is the **only** context a developer agent gets, so it must be self-contained:
