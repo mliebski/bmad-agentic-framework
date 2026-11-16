@@ -150,3 +150,33 @@ What it showed:
   a decision for the operator, not a default.
 - `evals/run.mjs --score-only <dir> --project <name> --to G5` now scores a run folder against
   a later target gate.
+
+## Fourth attempt (2026-11-16): efficiency changes, run to G5
+
+After the efficiency review (agent model tiers, size budgets, story risk, context bundles by
+reference, batched QA, resume digest) the same project ran to G5 and **reached it**: all 15 stories
+built and QA-verified in Go, release documents written, G5 passed by a human with the CONCERNS
+verdict and the untested macOS platform accepted in writing. `baseline.json` now holds this run
+(target G5, score 1.0). It replaces the planning-only baseline; compare only against runs with
+the same target gate, and rerun with `--to G5`.
+
+| | Planning-only baseline (Nov 15) | This run to G3 | This run to G5 |
+|---|---|---|---|
+| Requirements / stories | 22 / 18 | 16 / 15 | 16 / 15 |
+| PRD length | about 7,500 words | about 4,600 words | same |
+| Usage (USD-equivalent) | 6.25 | about 9.9 | about 27.6 in seven sessions |
+
+Read it with care:
+
+- **Planning cost went up, not down**, probably from Opus on the architect and reviewers, two
+  review rounds and three story reviewers. Not isolated; one run.
+- **Human input was needed**: Linux evidence (WSL, Go 1.27.4, git 2.25.1, dash), the G5 decision
+  and the acceptance of CONCERNS. Agents must not accept CONCERNS; the tool now refuses
+  `--accept-concerns` without a human name.
+- **Defects only Linux could show**: a bash-only `[[` in a POSIX script and tests using
+  `git init -b` (needs git 2.28). A perf failure on `/mnt/c` disappeared on a native filesystem.
+- **A bundler bug** (headings inside code fences cut sections short) was found by the stories
+  reviewer and fixed; oversize refs now fail `validate`.
+- The QA agent was denied Bash in the headless run, so some evidence was second-hand. Give QA a
+  shell in `ALLOWED` before the next run. The first headless session stopped after G1 for a
+  reason not found; the harness does not keep the final message.

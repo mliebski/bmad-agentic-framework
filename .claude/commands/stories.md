@@ -9,11 +9,12 @@ Create epics and stories. Input: $ARGUMENTS
 1. `docs/02-planning/prd.md` and `docs/03-solutioning/architecture.md` must exist.
 2. Delegate to `product-manager`: write `docs/03-solutioning/epics.md`, one story file per
    story in `docs/04-implementation/stories/` (template `bmad/templates/story.md`). Stories
-   must embed the architecture and UX context they need; `node bmad/tools/bmad.mjs context <story>`
-   prints the requirement and decision texts to copy in.
-3. Delegate to `solution-architect` for a quick technical review of the stories: correct
-   `touches`, missing technical tasks, dependency order. Apply its corrections through the
-   product manager.
+   must name their sources in `refs` and set `risk`, not copy text (the tool assembles the
+   bundle). Tell the PM the track's `budgets` in `bmad/config.yaml`.
+3. Standard and enterprise tracks only: delegate to `solution-architect` for a quick
+   technical review of the stories (`touches`, missing technical tasks, dependency order;
+   `validate` has already checked cycles and unresolved refs). Apply its corrections through
+   the product manager. Skip this on the quick track.
 
 **Quick track**
 1. Delegate to `solution-architect` to inspect the code and write a short tech-spec for the

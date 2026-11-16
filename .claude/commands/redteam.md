@@ -22,8 +22,11 @@ Red-team: $ARGUMENTS
 4. Send the review file to the owner agent: fix every open critical and major finding in the
    artifact, or state in the report why a finding is wrong.
 5. Spawn `adversarial-reviewer` again in re-review mode (same lens, same review file; pass
-   on any risks the user accepted). It updates each finding and `unresolved_critical`.
-6. At most three rounds. If criticals remain after that, stop and put the disagreement to
+   on any risks the user accepted and the list of what changed). It checks the open findings
+   and the changed parts, and updates `unresolved_critical`; it does not re-read the whole
+   artifact.
+6. At most `review_rounds` rounds for the track (`bmad/config.yaml`: quick 1, standard 2,
+   enterprise 3). If criticals remain after that, stop and put the disagreement to
    the user — do not let the owner and the reviewer loop.
 7. Report: findings found and resolved per severity, what remains open. `prd` and
    `architecture` reviews are required by gates G2 and G3 (`reviews.required` in

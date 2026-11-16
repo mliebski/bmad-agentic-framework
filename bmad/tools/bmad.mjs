@@ -7,6 +7,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 export const TOOL_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -17,6 +18,7 @@ const P = {
   graph: 'docs/bmad-graph.json',
   stories: 'docs/04-implementation/stories',
   reviews: 'docs/reviews',
+  bundles: 'docs/04-implementation/bundles',
 };
 const PROTECTED = [P.status, P.locks, P.metrics];
 const STORY_STATES = ['draft', 'ready', 'in-progress', 'review', 'done', 'blocked', 'deferred'];
@@ -80,7 +82,7 @@ const asList = (v) => (Array.isArray(v) ? v.map(String) : v && typeof v === 'str
 
 export function config(root) {
   const c = parseYaml(read(root, 'bmad/config.yaml') || '');
-  c.developer ||= {}; c.gates ||= {}; c.autopilot ||= {}; c.reviews ||= {};
+  c.developer ||= {}; c.gates ||= {}; c.autopilot ||= {}; c.reviews ||= {}; c.budgets ||= {}; c.qa ||= {};
   return c;
 }
 export function loadStatus(root) { return readJson(root, P.status, null); }
@@ -105,10 +107,84 @@ export function stories(root) {
       id: String(fm.id || f.replace(/\.md$/, '')), file: rel, title: fm.title || '', status: fm.status || 'draft',
       epic: fm.epic || '', requirements: asList(fm.requirements), depends_on: asList(fm.depends_on),
       touches: asList(fm.touches).map(norm), acceptance_tests: asList(fm.acceptance_tests).map(norm),
-      tests_exempt_reason: fm.tests_exempt_reason || '', verdict, text, section,
+      tests_exempt_reason: fm.tests_exempt_reason || '', risk: ['low', 'normal', 'high'].includes(fm.risk) ? fm.risk : (fm.risk ? String(fm.risk) : 'normal'), refs: asList(fm.refs), verdict, text, section,
     };
   });
 }
+// Cheap scan for the hook: reads only the head of each story file, not the whole story.
+export function activeStories(root) {
+  const dir = path.join(root, P.stories);
+  if (!fs.existsSync(dir)) return [];
+  const out = [];
+  const buf = Buffer.alloc(4096);
+  for (const f of fs.readdirSync(dir).filter((x) => x.endsWith('.md'))) {
+    const fd = fs.openSync(path.join(dir, f), 'r');
+    const n = fs.readSync(fd, buf, 0, buf.length, 0);
+    fs.closeSync(fd);
+    const head = buf.toString('utf8', 0, n);
+    if (!/^status:\s*in-progress\s*$/m.test(head)) continue;
+    const fm = frontmatter(head);
+    out.push({ id: String(fm.id || f.replace(/\.md$/, '')), touches: asList(fm.touches).map(norm) });
+  }
+  return out;
+}
+
+// ---------- context bundles: stories name their sources (refs); the tool assembles them ----------
+function mdSection(text, query) {
+  const q = query.replace(/^§\s*/, '').trim().toLowerCase();
+  const lines = text.split(/\r?\n/);
+  // headings, ignoring '#' lines inside fenced code blocks
+  let fence = false; const heads = [];
+  lines.forEach((l, i) => { if (/^\s*(```|~~~)/.test(l)) fence = !fence; else if (!fence) { const m = l.match(/^(#{1,4})\s+(.*)$/); if (m) heads.push({ i, level: m[1].length, text: m[2] }); } });
+  let start = -1; let level = 0;
+  for (const hd of heads) {
+    const h = hd.text.trim().toLowerCase();
+    const numbered = /^[\d.]+$/.test(q) && new RegExp(`^${q.replace(/\./g, '\\.')}(?![\\d])`).test(h);
+    if (numbered || (!/^[\d.]+$/.test(q) && h.includes(q))) { start = hd.i; level = hd.level; break; }
+  }
+  if (start < 0) return null;
+  let end = lines.length;
+  for (const hd of heads) if (hd.i > start && hd.level <= level) { end = hd.i; break; }
+  return lines.slice(start, end).join('\n').trim();
+}
+const DOCS = { prd: 'docs/02-planning/prd.md', arch: 'docs/03-solutioning/architecture.md', ux: 'docs/02-planning/ux-spec.md', strategy: 'docs/03-solutioning/test-strategy.md', brief: 'docs/01-discovery/project-brief.md' };
+const BUNDLE_CAP = 8000;
+export function resolveRef(root, ref) {
+  let body = null;
+  if (/^(?:FR|NFR)-\d+$/.test(ref)) { const c = reqRows(read(root, DOCS.prd))[ref]; body = c ? `${ref}: ${c.filter(Boolean).join(' | ')}` : null; }
+  else if (/^ADR-\d+$/i.test(ref)) {
+    const dir = path.join(root, 'docs/03-solutioning/adr');
+    const f = fs.existsSync(dir) ? fs.readdirSync(dir).find((n) => n.toUpperCase().startsWith(ref.toUpperCase())) : null;
+    if (f) { const t = read(root, `docs/03-solutioning/adr/${f}`); body = `${ref} — ${(t.match(/^# (.*)$/m) || [])[1] || f}\n${mdSection(t, 'Decision') || t.slice(0, 1200)}`; }
+  } else {
+    const m = ref.match(/^(prd|arch|ux|strategy|brief):(.+)$/);
+    if (m) { const t = read(root, DOCS[m[1]]); body = t ? mdSection(t, m[2]) : null; }
+  }
+  if (body && body.length > BUNDLE_CAP) body = body.slice(0, body.lastIndexOf('\n', BUNDLE_CAP)) + `\n… (TRUNCATED at ${BUNDLE_CAP} characters — narrow the reference)`;
+  return body;
+}
+export function bundleBody(root, s) {
+  const parts = []; const missing = [];
+  for (const r of s.refs) { const b = resolveRef(root, r); if (b == null) missing.push(r); else parts.push(`### ${r}\n${b}`); }
+  const all = s.depends_on.length ? stories(root) : [];
+  const deps = s.depends_on.map((d) => { const x = all.find((y) => y.id === d); return `- ${d}: ${x ? x.status + ' — ' + x.title : 'unknown'}`; });
+  const body = [`# Context bundle for ${s.id}: ${s.title}`, '_Assembled by the BMAD tool from the `refs` in the story. Do not edit; it is regenerated when the story starts._', '', ...parts, ...(deps.length ? ['### Dependencies', ...deps] : [])].join('\n');
+  return { body, missing, sha: crypto.createHash('sha256').update(body).digest('hex').slice(0, 16) };
+}
+export function writeBundle(root, s) {
+  const b = bundleBody(root, s);
+  const rel = `${P.bundles}/${s.id}.md`;
+  const f = path.join(root, rel);
+  fs.mkdirSync(path.dirname(f), { recursive: true });
+  fs.writeFileSync(f, `<!-- bmad-bundle sha:${b.sha} -->\n${b.body}\n`);
+  return { rel, ...b };
+}
+function bundleStale(root, s) {
+  const t = read(root, `${P.bundles}/${s.id}.md`);
+  if (t == null) return true;
+  return (t.match(/bmad-bundle sha:(\w+)/) || [])[1] !== bundleBody(root, s).sha;
+}
+
 function setStoryStatus(root, story, status) {
   const f = path.join(root, story.file);
   const t = fs.readFileSync(f, 'utf8');
@@ -200,6 +276,8 @@ export function validate(root, gate, storyId) {
   };
   const prd = read(root, 'docs/02-planning/prd.md');
   const rows = reqRows(prd);
+  const budget = (k) => cfg.budgets?.[st.track]?.[k];
+  const over = (what, n, k) => { const b = budget(k); if (b && n > b) W.push(`${what}: ${n} exceeds the ${st.track}-track budget of ${b} (bmad/config.yaml budgets) — cut scope or record why the budget is wrong`); };
   const all = stories(root);
 
   if (gate === 'G1') {
@@ -222,6 +300,8 @@ export function validate(root, gate, storyId) {
       const ux = need('docs/02-planning/ux-spec.md');
       if (ux) { const miss = frs.filter((f) => !ux.includes(f)); if (miss.length) W.push(`UX spec does not mention: ${miss.join(', ')}`); }
     }
+    over('FR count', frs.length, 'max_frs');
+    if (prd) over('PRD words', prd.split(/\s+/).length, 'prd_words');
     review('prd');
   }
   if (gate === 'G3') {
@@ -240,6 +320,7 @@ export function validate(root, gate, storyId) {
     }
     if (!cfg.developer.test_command) err('no-test-command', 'developer.test_command is empty in bmad/config.yaml');
     if (!all.length) err('no-stories', `no story files in ${P.stories}/`);
+    over('story count', all.length, 'max_stories');
     const byId = new Map(all.map((s) => [s.id, s]));
     for (const s of all) {
       for (const ph of PLACEHOLDERS) if (s.text.includes(ph)) err('placeholder', `${s.id} still contains template placeholder ${ph}`);
@@ -247,7 +328,10 @@ export function validate(root, gate, storyId) {
       if (!/^\s*\d+\.\s*\S/m.test(ac) || ac.includes('…')) err('story-no-ac', `${s.id} has no concrete acceptance criteria`);
       if (!s.touches.length) err('story-no-touches', `${s.id} has an empty touches list`);
       for (const d of s.depends_on) if (!byId.has(d)) err('story-bad-dep', `${s.id} depends on unknown story ${d}`);
-      if (s.section('Context').trim().length < 200) W.push(`${s.id} context section is very short — is the story self-contained?`);
+      if (!s.refs.length && s.section('Context').trim().length < 200) W.push(`${s.id} has no refs and a very short context section — is the story self-contained?`);
+      for (const r of s.refs) if ((resolveRef(root, r) || '').includes('(TRUNCATED at')) err('ref-too-long', `${s.id} ref "${r}" exceeds the bundle cap — reference a narrower heading`);
+      for (const r of s.refs) if (resolveRef(root, r) == null) err('ref-unresolved', `${s.id} ref "${r}" does not resolve to any PRD row, ADR or document section`);
+      if (!['low', 'normal', 'high'].includes(s.risk)) err('story-bad-risk', `${s.id} risk must be low, normal or high`);
       if (!STORY_STATES.includes(s.status)) err('story-bad-status', `${s.id} has invalid status "${s.status}"`);
     }
     const seen = new Set(); const stackSet = new Set();
@@ -267,6 +351,8 @@ export function validate(root, gate, storyId) {
       verifyLocks(root, s.id).forEach((m) => err('lock-broken', m));
       if (cfg.gates.story_review_by_qa !== false && !s.verdict) err('no-qa-verdict', `${s.id} has no QA verdict`);
       if (s.verdict === 'FAIL') err('qa-fail', `${s.id} QA verdict is FAIL`);
+      if (s.risk === 'high') { const rv = read(root, `${P.reviews}/code-${s.id}.review.md`); if (rv == null) err('no-code-review', `${s.id} is high risk — run /bmad:redteam code ${s.id}`); else if (frontmatter(rv).unresolved_critical !== 0) err('review-critical', `${s.id} code review has unresolved critical finding(s)`); }
+      if (s.refs.length && bundleStale(root, s)) W.push(`${s.id}: context bundle is stale or missing — the PRD, architecture or an ADR changed since the developer started`);
     }
   }
   if (gate === 'G5') {
@@ -357,6 +443,68 @@ export function metricsSummary(root) {
   return { events: lines.length, gates, failure_codes: codes, story_rework: rework, stories_blocked: blocked };
 }
 
+// ---------- mechanical verification (low-risk stories) and resume digest ----------
+function runCmd(root, cmd) {
+  const r = spawnSync(cmd, { cwd: root, shell: true, encoding: 'utf8', timeout: 600000 });
+  const tail = `${r.stdout || ''}${r.stderr || ''}`.trim().split(/\r?\n/).slice(-4).join(' / ');
+  return { ok: r.status === 0, tail: tail.slice(0, 300), cmd };
+}
+function verifyStory(root, s) {
+  const cfg = config(root);
+  const fail = (msg) => { console.error(`${s.id} cannot be verified mechanically: ${msg}`); return 1; };
+  if (cfg.qa.mechanical_for_low_risk === false) return fail('qa.mechanical_for_low_risk is false in bmad/config.yaml');
+  if (s.risk !== 'low') return fail(`risk is ${s.risk}; only low-risk stories skip the QA agent`);
+  if (!['in-progress', 'review'].includes(s.status)) return fail(`status is ${s.status}; the developer must finish first`);
+  const locks = verifyLocks(root, s.id);
+  if (locks.length) return fail(locks.join('; '));
+  const d = cfg.developer;
+  const paths = s.acceptance_tests.join(' ');
+  const cmds = [];
+  const scoped = d.scoped_test_command && paths ? String(d.scoped_test_command).replace('{paths}', paths) : d.test_command;
+  if (scoped) cmds.push(scoped); else return fail('developer.test_command is empty');
+  if (d.lint_command) cmds.push(d.lint_command);
+  if (d.build_command) cmds.push(d.build_command);
+  const results = [];
+  for (const c of cmds) { const r = runCmd(root, c); results.push(r); if (!r.ok) { metric(root, { type: 'story', id: s.id, from: s.status, to: 'verify-failed', failures: ['verify-command'] }); console.error(`${s.id} verification failed: ${r.cmd}\n${r.tail}`); return 1; } }
+  const f = path.join(root, s.file);
+  let t = fs.readFileSync(f, 'utf8');
+  const evidence = `mechanical verification by the BMAD tool — ${results.map((r) => `\`${r.cmd}\` exit 0`).join('; ')}`;
+  t = t.replace(/^- \*\*Verdict:\*\*.*$/m, '- **Verdict:** PASS').replace(/^- \*\*Commands re-run and results:\*\*.*$/m, `- **Commands re-run and results:** ${evidence}`);
+  fs.writeFileSync(f, t);
+  if (s.status !== 'review') setStoryStatus(root, { ...s }, 'review');
+  const r = validate(root, 'G4', s.id);
+  if (r.errors.length) { console.error(`${s.id} cannot be done:\n${r.errors.map((e) => `  ✘ [${e.code}] ${e.msg}`).join('\n')}`); return 1; }
+  setStoryStatus(root, s, 'done');
+  metric(root, { type: 'story', id: s.id, from: s.status, to: 'done', by: 'mechanical-verification' });
+  console.log(`${s.id}: verified mechanically → done (${results.length} command(s) passed)`);
+  return 0;
+}
+
+const PHASE_GATE = { 1: 'G1', 2: 'G2', 3: 'G3', 5: 'G5', 6: 'G6' };
+export function resume(root) {
+  const st = loadStatus(root);
+  if (!st) return 'not initialised — run /bmad:init';
+  const L = [`${st.project_name || '(unnamed)'} — ${st.track} track, phase ${st.current_phase}. Gates: ${Object.entries(st.gates).map(([g, v]) => `${g} ${v.status}`).join(', ')}`];
+  const all = stories(root);
+  if (all.length) { const c = {}; all.forEach((x) => (c[x.status] = (c[x.status] || 0) + 1)); L.push(`Stories: ${Object.entries(c).map(([k, v]) => `${k} ${v}`).join(', ')}`); }
+  let next;
+  if (st.current_phase === 4) {
+    const w = wave(root);
+    const failed = st.gates.G3?.status === 'failed';
+    if (failed) next = '/bmad:gate G3';
+    else if (all.length && all.every((x) => ['done', 'deferred'].includes(x.status))) next = '/bmad:release';
+    else { L.push(`Wave: ${w.wave.map((x) => x.id).join(', ') || 'none'}${w.needs_tests.length ? `; need tests: ${w.needs_tests.join(', ')}` : ''}`); next = '/bmad:sprint (or /bmad:auto)'; }
+  } else {
+    const g = PHASE_GATE[st.current_phase];
+    const v = g ? validate(root, g) : { errors: [], warnings: [] };
+    if (v.errors.length) { L.push(`${g} blockers (${v.errors.length}): ${v.errors.slice(0, 6).map((e) => `[${e.code}] ${e.msg}`).join(' | ')}${v.errors.length > 6 ? ' | …' : ''}`); next = `${{ 1: '/bmad:discover', 2: '/bmad:prd, /bmad:ux, /bmad:redteam prd', 3: '/bmad:architect, /bmad:redteam architecture, /bmad:stories', 5: '/bmad:release', 6: '/bmad:golive' }[st.current_phase]} (or /bmad:auto)`; }
+    else { if (v.warnings.length) L.push(`Warnings: ${v.warnings.slice(0, 4).join(' | ')}`); next = `/bmad:gate ${g}`; }
+  }
+  if (st.open_questions.length) L.push(`Open questions: ${st.open_questions.length} (bmad.mjs status lists them)`);
+  L.push(`Next: ${next}`);
+  return L.join('\n');
+}
+
 // ---------- hook handler (Claude Code PreToolUse / SessionStart) ----------
 function hook() {
   let input;
@@ -386,7 +534,7 @@ function hook() {
       if (isDev) {
         const cfg = config(root);
         if (cfg.developer.enforce_touches === false) return 0;
-        const active = stories(root).filter((s) => s.status === 'in-progress');
+        const active = activeStories(root);
         if (!active.length) return 0;
         const allowed = active.flatMap((s) => s.touches).concat(asList(cfg.developer.shared_files).map(norm), [P.stories]);
         if (!overlaps([rel], allowed) && !allowed.some((a) => rel.startsWith(a + '/') || rel === a)) return deny(`${rel} is outside the touches of the story in progress (${active.map((s) => s.id).join(', ')}): ${allowed.join(', ')}. If the story genuinely needs it, set the story to blocked and report which file and why.`);
@@ -419,8 +567,11 @@ const HELP = `BMAD tool
   phase <1..6>                         set the current phase (new iteration after go-live)
   validate --gate <G1|G2|G3|G5|G6> | --story <id>  [--json]
   gate <G> <pass|fail|waive> --by <who> [--notes <text>]   pass is refused unless validate is clean
+  resume                               compact digest: where the project is, what blocks the gate, the next command
   stories [--json]                     story table from story front matter
-  story <id> <status> [--accept-concerns]   done is refused unless the G4 checks pass
+  story <id> <status> [--accept-concerns --by <human>]   done is refused unless the G4 checks pass
+  story <id> verify                    low-risk stories only: the tool re-runs the checks and records a mechanical PASS
+  bundle <story>                       assemble the story's refs (PRD rows, ADRs, doc sections) into one context file
   wave [--max <n>] [--json]            next set of stories that can run in parallel
   lock-tests <id> | unlock-tests <id> | verify-locks [id]
   graph | trace | impact <node> | context <story>   [--json]
@@ -455,7 +606,7 @@ function main(argv) {
     case 'status': {
       const s = needStatus(); const all = stories(root);
       const counts = {}; all.forEach((x) => (counts[x.status] = (counts[x.status] || 0) + 1));
-      out({ ...s, story_counts: counts }, [`${s.project_name || '(unnamed)'} — track ${s.track}, phase ${s.current_phase}`, `Gates: ${Object.entries(s.gates).map(([g, v]) => `${g}=${v.status}`).join('  ')}`, `Stories: ${Object.entries(counts).map(([k, v]) => `${k} ${v}`).join(', ') || 'none'}`, `Artifacts: ${Object.entries(s.artifacts).map(([k, v]) => `${k} (${v})`).join(', ') || 'none'}`, `Open questions: ${s.open_questions.length ? '\n' + s.open_questions.map((q, i) => `  ${i + 1}. ${q}`).join('\n') : 'none'}`].join('\n'));
+      out({ ...s, story_counts: counts }, [`${s.project_name || '(unnamed)'} — track ${s.track}, phase ${s.current_phase}`, `Gates: ${Object.entries(s.gates).map(([g, v]) => `${g}=${v.status}`).join('  ')}`, `Stories: ${Object.entries(counts).map(([k, v]) => `${k} ${v}`).join(', ') || 'none'}`, flags.verbose ? `Artifacts: ${Object.entries(s.artifacts).map(([k, v]) => `${k} (${v})`).join(', ') || 'none'}` : `Artifacts: ${Object.keys(s.artifacts).length} (--verbose lists them)`, `Open questions:${s.open_questions.length ? '\n' + s.open_questions.map((q, i) => `  ${i + 1}. ${q}`).join('\n') : 'none'}`].join('\n'));
       return 0;
     }
     case 'artifact': { const s = needStatus(); if (!['draft', 'review', 'approved'].includes(a2)) throw new Error('state must be draft, review or approved'); if (!exists(root, a1)) throw new Error(`${a1} does not exist`); s.artifacts[norm(a1)] = a2; saveStatus(root, s); console.log(`${norm(a1)}: ${a2}`); return 0; }
@@ -496,17 +647,29 @@ function main(argv) {
     case 'story': {
       const s = stories(root).find((x) => x.id === a1);
       if (!s) throw new Error(`unknown story ${a1}`);
-      if (!STORY_STATES.includes(a2)) throw new Error(`status must be one of ${STORY_STATES.join(', ')}`);
+      if (a2 === 'verify') return verifyStory(root, s);
+      if (!STORY_STATES.includes(a2)) throw new Error(`status must be one of ${STORY_STATES.join(', ')} (or "verify")`);
       if (a2 === 'done') {
         const r = validate(root, 'G4', a1);
+        if (flags['accept-concerns'] && (!flags.by || flags.by === true || /^(autopilot|orchestrator|claude)$/i.test(String(flags.by)))) throw new Error('--accept-concerns needs --by <a human name>; an agent cannot accept CONCERNS');
         if (s.verdict === 'CONCERNS' && !flags['accept-concerns']) r.errors.push({ code: 'qa-concerns', msg: `${a1} QA verdict is CONCERNS — the human must accept (--accept-concerns)` });
         if (r.errors.length) { metric(root, { type: 'story', id: a1, from: s.status, to: 'done-refused', failures: r.errors.map((e) => e.code) }); console.error(`${a1} cannot be done:\n${r.errors.map((e) => `  ✘ [${e.code}] ${e.msg}`).join('\n')}`); return 1; }
       }
       setStoryStatus(root, s, a2);
       metric(root, { type: 'story', id: a1, from: s.status, to: a2 });
       console.log(`${a1}: ${s.status} → ${a2}`);
+      if (a2 === 'in-progress' && s.refs.length) { const b = writeBundle(root, s); console.log(`context bundle: ${b.rel}${b.missing.length ? `  (UNRESOLVED refs: ${b.missing.join(', ')})` : ''}`); }
+      if (a2 === 'review') console.log(s.risk === 'low' && config(root).qa.mechanical_for_low_risk !== false ? `risk low: run "story ${a1} verify" — no QA agent needed` : `risk ${s.risk}: needs a QA review (batched per wave or epic)`);
       return 0;
     }
+    case 'bundle': {
+      const s = stories(root).find((x) => x.id === a1);
+      if (!s) throw new Error(`unknown story ${a1}`);
+      const b = writeBundle(root, s);
+      console.log(`${b.rel}${b.missing.length ? `\nUNRESOLVED refs: ${b.missing.join(', ')}` : ''}`);
+      return b.missing.length ? 1 : 0;
+    }
+    case 'resume': { console.log(resume(root)); return 0; }
     case 'wave': { const w = wave(root, flags.max && Number(flags.max)); out(w, [`Wave: ${w.wave.map((s) => s.id).join(', ') || '(nothing can start)'}`, ...w.wave.map((s) => `  ${s.id} ${s.file}`), w.needs_tests.length ? `Need acceptance tests first: ${w.needs_tests.join(', ')}` : '', ...w.waiting.map((x) => `  waiting ${x.id}: ${x.reason}`)].filter(Boolean).join('\n')); return 0; }
     case 'lock-tests': { const f = lockTests(root, a1); console.log(`${a1}: locked ${f.length} file(s)\n${f.map((x) => '  ' + x).join('\n')}`); return 0; }
     case 'unlock-tests': { const l = readJson(root, P.locks, {}); delete l[a1]; writeJson(root, P.locks, l); console.log(`${a1}: unlocked`); return 0; }

@@ -4,6 +4,8 @@
 //   node bmad/tools/install.mjs <target-folder>                 full install (agents, commands, hooks, MCP, assets)
 //   node bmad/tools/install.mjs <target-folder> --assets-only   only bmad/ (used by /bmad:init when running as a plugin)
 //   add --force to overwrite an existing bmad/config.yaml
+//   add --no-rules to skip CLAUDE.md and --no-hooks to skip settings.json hooks (use both when the BMAD plugin
+//   is already installed, so the rules and hooks are not loaded twice)
 //   node bmad/tools/install.mjs --sync-rules                    regenerate this repository's CLAUDE.md from the skill
 //
 // Command names. The sources write every command as /bmad:<name>, which is how Claude Code shows
@@ -36,6 +38,8 @@ if (args.includes('--sync-rules')) {   // the skill is the single source of the 
 const target = args.find((a) => !a.startsWith('--'));
 const assetsOnly = args.includes('--assets-only');
 const force = args.includes('--force');
+const noRules = args.includes('--no-rules');
+const noHooks = args.includes('--no-hooks');
 if (!target) { console.error('usage: node install.mjs <target-folder> [--assets-only] [--force]'); process.exit(1); }
 const DST = path.resolve(target);
 if (DST === SRC) { console.error('target is the framework folder itself — nothing to do'); process.exit(1); }
@@ -74,7 +78,8 @@ if (!assetsOnly) {
   // 2. orchestrator rules (single source: the skill)
   const rules = adapt(rulesFromSkill());
   const claudeMd = path.join(DST, 'CLAUDE.md');
-  if (!fs.existsSync(claudeMd)) { fs.writeFileSync(claudeMd, rules); done.push('CLAUDE.md (created)'); }
+  if (noRules) done.push('CLAUDE.md (skipped: --no-rules)');
+  else if (!fs.existsSync(claudeMd)) { fs.writeFileSync(claudeMd, rules); done.push('CLAUDE.md (created)'); }
   else if (!fs.readFileSync(claudeMd, 'utf8').includes('BMAD Orchestrator')) { fs.appendFileSync(claudeMd, `\n\n${rules}`); done.push('CLAUDE.md (orchestrator rules appended)'); }
   else done.push('CLAUDE.md (already has the orchestrator rules)');
 
@@ -92,7 +97,8 @@ if (!assetsOnly) {
   const settings = readJson(sFile, {});
   const ours = readJson(path.join(SRC, '.claude/settings.json'), {}).hooks?.PreToolUse || [];
   settings.hooks ||= {}; settings.hooks.PreToolUse ||= [];
-  if (!JSON.stringify(settings.hooks.PreToolUse).includes('bmad.mjs')) { settings.hooks.PreToolUse.push(...ours); writeJson(sFile, settings); done.push('.claude/settings.json (hook added)'); }
+  if (noHooks) done.push('.claude/settings.json (skipped: --no-hooks)');
+  else if (!JSON.stringify(settings.hooks.PreToolUse).includes('bmad.mjs')) { settings.hooks.PreToolUse.push(...ours); writeJson(sFile, settings); done.push('.claude/settings.json (hook added)'); }
   else done.push('.claude/settings.json (hook already present)');
   // 5. MCP server — merge
   const mFile = path.join(DST, '.mcp.json');

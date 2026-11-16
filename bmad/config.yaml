@@ -10,6 +10,7 @@ developer:
   max_parallel: 3           # how many developer agents one wave may run at once
   require_worktree_for_parallel: true   # parallel devs only inside a git repository
   test_command: ""          # e.g. "npm test" — filled in by the architect; G3 fails while empty
+  scoped_test_command: ""   # optional, runs only a story's acceptance tests; {paths} is replaced, e.g. "pytest {paths}"
   lint_command: ""
   build_command: ""
   tests_first: true         # QA writes and locks failing acceptance tests before a developer starts
@@ -28,3 +29,28 @@ reviews:
 autopilot:
   auto_pass: []             # gates /bmad:auto may pass itself when the validator is clean, e.g. [G1, G2]. Never G6.
   max_rework: 2             # times a story may bounce between developer and QA before a human is asked
+
+qa:
+  mechanical_for_low_risk: true  # stories marked risk: low are verified by the tool (locks, tests, lint, build), not a QA agent
+  # risk: normal stories get a QA agent, batched per wave or epic; risk: high also needs a code red-team review
+
+# Size budgets per track. validate warns when exceeded; the PM and architect read them before writing.
+budgets:
+  quick:
+    max_frs: 8
+    max_stories: 5
+    prd_words: 1500
+  standard:
+    max_frs: 16
+    max_stories: 15
+    prd_words: 5000
+  enterprise:
+    max_frs: 40
+    max_stories: 60
+    prd_words: 12000
+
+# Review effort per track (read by /bmad:redteam and /bmad:gate)
+review_rounds:
+  quick: 1
+  standard: 2
+  enterprise: 3

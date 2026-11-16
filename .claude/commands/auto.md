@@ -12,7 +12,8 @@ human.
 
 **Loop.** Repeat until the target is reached or you must stop:
 
-1. `node bmad/tools/bmad.mjs status` and `validate --gate <current gate>` (phase 4: `wave`).
+1. `node bmad/tools/bmad.mjs resume` (blockers and next step). Run `validate --gate <G>` only
+   when you need the full error list (phase 4: `wave`).
 2. Do the next missing step for the current phase by following the matching command's
    instructions (`.claude/commands/*.md`) exactly as if the user had run it:
 
@@ -55,6 +56,10 @@ the artifact and record it as an open question. In this mode, when the environme
 `--by autopilot`; a gate that does not come clean after three fix rounds is recorded as
 `fail --by autopilot` and the run stops there. Never merge branches in this mode — run
 developers one at a time in the working tree.
+
+**Keep the thread small.** Everything durable is on disk, so after a gate decision tell the
+user they may run `/clear` and then `/bmad:help` to continue with a fresh context. Do not
+paste agent reports or file contents into your own messages; give paths and counts.
 
 **Report** at every stop: phase reached, gates passed and how, artifacts written, stories
 done / remaining, what is waiting for the user. State failures as failures.

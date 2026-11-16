@@ -3,7 +3,7 @@
     "bmad": {
       "command": "node",
       "args": [
-        "${CLAUDE_PLUGIN_ROOT}/bmad/tools/mcp-server.mjs"
+        "${CLAUDE_PLUGIN_ROOT:-.}/bmad/tools/mcp-server.mjs"
       ]
     }
   }

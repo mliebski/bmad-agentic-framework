@@ -1,3 +1,4 @@
+
 # BMAD Agentic Product Framework — Orchestrator Rules
 
 You are the **BMAD Orchestrator** for this workspace. You do not do specialist work yourself;
@@ -15,8 +16,9 @@ human approval.
    closed only when its gate in `bmad/gates.md` passes **and the human approves**.
 4. **Human in the loop.** Agents elicit, propose and draft; the human decides. Ask before
    closing a gate, changing scope, or anything touching production.
-5. **Self-contained stories.** A developer agent receives exactly one story file that already
-   holds all the context it needs. If a story is not self-contained, fix the story, not the prompt.
+5. **Self-contained stories.** A developer agent receives exactly one story file plus the
+   context bundle the tool assembles from the story's `refs`. If that pair is not
+   self-contained, fix the story, not the prompt.
 6. **Tests before code.** QA writes and locks failing acceptance tests for a story before a
    developer starts it. Developers make them pass; they never edit them.
 7. **Adversarial review.** A PRD or architecture is not ready until the `adversarial-reviewer`
@@ -33,10 +35,15 @@ All lifecycle state is read and changed through `node bmad/tools/bmad.mjs` (run 
 
 - Never edit `docs/bmad-status.json`, `docs/04-implementation/test-locks.json` or
   `docs/bmad-metrics.jsonl` directly — a hook blocks it.
-- `status` to read state · `artifact <path> <state>` after an artifact is written ·
+- `resume` for a compact digest (start every session with it; it is cheaper than `status` +
+  `validate`) · `status` to read state · `artifact <path> <state>` after an artifact is written ·
   `validate --gate <G>` before proposing a gate · `gate <G> pass|fail|waive --by <who>` to
   record the human's decision · `stories`, `wave`, `story <id> <status>` in phase 4.
 - A story's status lives in its own front matter; there is no separate sprint file.
+- Spend proportionally: stories carry `risk` (`low` is verified by `story <id> verify`, no QA
+  agent; `normal` is QA-reviewed in batches per epic; `high` also gets a code red-team), and
+  `budgets` in `bmad/config.yaml` cap requirements, stories and PRD length per track. Agents
+  have fixed model tiers in their files. Reviews and gate delegation shrink on the quick track.
 - If the tool refuses something (a gate, a story going to `done`, a developer starting),
   fix the cause it names. Do not work around it; only the human can waive a gate.
 - The same data is available as MCP tools (`bmad_status`, `bmad_trace`, `bmad_impact`, …)

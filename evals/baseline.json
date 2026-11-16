@@ -1,16 +1,17 @@
 {
-  "stamp": "2026-11-15T20-52-18",
-  "framework_commit": "b068709",
+  "stamp": "2026-11-16T13-46-21",
+  "framework_commit": "working tree on top of 4116ead (committed as the next commit)",
   "judged": false,
+  "target": "G5",
   "projects": {
     "team-todo-cli": {
-      "total": 0.97,
+      "total": 1,
       "structure": 1,
       "coverage": 1,
-      "discipline": 0.8,
+      "discipline": 1,
       "judge": null,
-      "minutes": 30,
-      "cost_usd": 6.254081100000002,
+      "minutes": null,
+      "cost_usd": 27.58,
       "exit": 0,
       "detail": {
         "gates": {
@@ -28,6 +29,11 @@
             "recorded": "passed",
             "by": "autopilot",
             "validator_errors": []
+          },
+          "G5": {
+            "recorded": "passed",
+            "by": "Michael Liebeskind",
+            "validator_errors": []
           }
         },
         "missed": [],
@@ -37,30 +43,29 @@
             "ok": true
           },
           {
-            "name": "at least 5 FRs (found 22)",
+            "name": "at least 5 FRs (found 16)",
             "ok": true
           },
           {
-            "name": "at most 16 FRs (found 22)",
-            "ok": false
-          },
-          {
-            "name": "at least 4 stories (found 18)",
+            "name": "at most 16 FRs (found 16)",
             "ok": true
           },
           {
-            "name": "at most 20 stories (found 18)",
+            "name": "at least 4 stories (found 15)",
+            "ok": true
+          },
+          {
+            "name": "at most 20 stories (found 15)",
             "ok": true
           }
         ],
-        "frs": 22,
-        "stories": 18,
-        "open_questions": 3
+        "frs": 16,
+        "stories": 15,
+        "open_questions": 10
       },
-      "judge_detail": null,
-      "run_dir": "evals\\runs\\2026-11-15T20-52-18\\team-todo-cli"
+      "run_dir": "evals/runs/2026-11-16T13-46-21/team-todo-cli"
     }
   },
-  "model": "claude-sonnet-5-5",
-  "note": "Baseline from one run of one project. Compare only against runs on the same model and without --judge."
+  "model": "claude-sonnet-5-5 main thread; agents on opus/sonnet/haiku tiers",
+  "note": "First baseline that reaches G5 (all 15 stories built and QA-verified, release docs written). Gates G1-G3 by autopilot; G5 passed by the human with CONCERNS accepted and macOS untested. Cost is the sum of seven headless sessions including human-fix rounds, so it is not comparable with the planning-only baseline of 2026-11-15 (0.97, 6.25 USD). Compare only against runs with the same target gate and model setup, without --judge. Linux evidence was supplied by the human; one run is an indication, not a result."
 }

@@ -20,7 +20,7 @@ const flag = (n) => { const i = argv.indexOf(`--${n}`); if (i < 0) return undefi
 const valueFlags = ['score-only', 'project', 'threshold', 'to'];
 const names = argv.filter((a, i) => !a.startsWith('--') && !(i > 0 && valueFlags.includes(argv[i - 1].slice(2))));
 const GATE_ORDER = ['G1', 'G2', 'G3', 'G5'];
-const ALLOWED = 'Read,Write,Edit,Glob,Grep,Agent,WebSearch,WebFetch,Bash(node bmad/tools/bmad.mjs *),Bash(git *),Bash(npm *),Bash(npx *),Bash(node *)';
+const ALLOWED = 'Read,Write,Edit,Glob,Grep,Agent,WebSearch,WebFetch,Bash(node bmad/tools/bmad.mjs *),Bash(git *),Bash(npm *),Bash(npx *),Bash(node *),Bash(go *),Bash(python *),Bash(python3 *),Bash(pytest *),Bash(py *),Bash(pip *)';
 const CLAUDE_ARGS = process.env.BMAD_EVAL_CLAUDE_ARGS || `--permission-mode acceptEdits --allowedTools "${ALLOWED}"`;
 
 const sh = (cmd, cwd, env = {}) => spawnSync(cmd, { cwd, shell: true, encoding: 'utf8', env: { ...process.env, ...env }, maxBuffer: 64 * 1024 * 1024 });

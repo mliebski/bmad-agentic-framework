@@ -61,3 +61,14 @@ the tool. Input for `/bmad:improve`.
 `docs/bmad-graph.json` — derived index of requirements, decisions, stories and tests
 (`bmad.mjs graph | trace | impact <id> | context <story>`). The documents stay the source
 of truth; the graph is rebuilt from them on every call.
+
+## Spend control
+
+| Lever | Where | Effect |
+|---|---|---|
+| Agent model tiers | `model:` in each `.claude/agents/*.md` | opus for architecture and adversarial review, sonnet for building and QA, haiku for docs, marketing and synthetic users |
+| Size budgets | `budgets` in `bmad/config.yaml` | `validate` warns when FRs, stories or PRD words exceed the track's budget |
+| Story risk | `risk: low\|normal\|high` in the story | low: `story <id> verify` (tool, no agent); normal: QA agent per epic; high: plus code red-team |
+| Context bundles | `refs` in the story, `bmad.mjs bundle <id>` | stories name sources, the tool assembles them; no copied text to go stale |
+| Review effort | `review_rounds`, `/bmad:gate`, `/bmad:redteam` | fewer rounds and fewer delegated reviews on lighter tracks; re-reviews read only what changed |
+| Cheap resume | `bmad.mjs resume` | one compact digest instead of `status` + `validate`; `/clear` between phases is safe |

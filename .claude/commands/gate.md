@@ -11,12 +11,15 @@ Run gate: $ARGUMENTS (if empty, the gate of the current phase from
    the tool would refuse the pass anyway.
 2. **Judgement checks.** Read the gate's checklist in `bmad/gates.md`. For the items not
    marked ⚙, evaluate each against the artifacts and quote the evidence (file and section)
-   or state what is missing. Where specialist judgement is needed, delegate a review to an
-   agent that does **not** own the artifact:
+   or state what is missing. Delegation scales with the track in `bmad/config.yaml`:
+   **quick** — none, you check the items yourself; **standard** — delegate only where the
+   list below says *(standard)*; **enterprise** — delegate every review in the list. When
+   delegating, use an agent that does **not** own the artifact:
    - G1 → `product-manager` reviews the discovery docs
-   - G2 → `solution-architect` reviews the PRD and UX spec for feasibility
-   - G3 → `qa-tester` reviews stories for testability; `adversarial-reviewer` (lens
-     `stories`) checks whether a story can be built from its file alone
+   - G2 → `solution-architect` reviews the PRD and UX spec for feasibility (standard)
+   - G3 → `adversarial-reviewer` (lens `stories`) on the three riskiest stories only,
+     whether each can be built from its file and bundle alone (standard; enterprise: all
+     stories); `qa-tester` reviews stories for testability
    - G5 → `product-manager` checks scope against the PRD
    - G6 → `solution-architect` and `qa-tester`
 3. Present the checklist with ✔ / ✘ / N/A per item and a proposed verdict.

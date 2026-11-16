@@ -18,3 +18,9 @@
 - **Constraints:** one engineer, two weeks, part-time.
 - **Stack preference:** Go or Python; the team reads both.
 - **Anything unanswered:** choose the conservative option and record it as an open question.
+- **Experiments:** do not plan or run long-running experiments (for example generating hundreds of
+  git repositories). Where a decision depends on one, choose the conservative option
+  (for instance a `merge=union` attribute) and record the unverified assumption as an open question.
+- **Fallback stack:** if the Go toolchain cannot be used in this environment, switch to a Python
+  3 single-file script (standard library only, tests with `unittest` or `pytest`) and record the
+  switch as an ADR.
