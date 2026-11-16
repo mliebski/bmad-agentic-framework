@@ -46,10 +46,15 @@ else done.push('CLAUDE.md (already has the orchestrator rules)');
 
 if (!assetsOnly) {
   // 3. agents and commands
-  for (const dir of ['.claude/agents', '.claude/commands']) {
-    fs.cpSync(path.join(SRC, dir), path.join(DST, dir), { recursive: true });
-    done.push(`${dir}/ (${fs.readdirSync(path.join(SRC, dir)).length} files)`);
-  }
+  fs.cpSync(path.join(SRC, '.claude/agents'), path.join(DST, '.claude/agents'), { recursive: true });
+  done.push(`.claude/agents/ (${fs.readdirSync(path.join(SRC, '.claude/agents')).length} files)`);
+  // Commands are stored without the prefix (so the plugin shows /bmad:init) and get it back here,
+  // so a project always sees /bmad-init, which does not clash with Claude Code's built-in /init.
+  const cmdDir = path.join(DST, '.claude/commands');
+  fs.mkdirSync(cmdDir, { recursive: true });
+  const cmds = fs.readdirSync(path.join(SRC, '.claude/commands'));
+  for (const c of cmds) fs.copyFileSync(path.join(SRC, '.claude/commands', c), path.join(cmdDir, 'bmad-' + c));
+  done.push(`.claude/commands/ (${cmds.length} files, named bmad-*)`);
   // 4. hooks — merge into existing settings
   const sFile = path.join(DST, '.claude/settings.json');
   const settings = readJson(sFile, {});

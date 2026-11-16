@@ -35,8 +35,8 @@ claude plugin marketplace add mliebski/bmad-agentic-framework
 claude plugin install bmad@bmad-agentic-framework
 ```
 
-As a plugin the commands are namespaced (`/bmad:bmad-init`, `/bmad:bmad-auto`, …) and
-`/bmad:bmad-init` copies the `bmad/` assets into the project on first use.
+As a plugin the commands are namespaced (`/bmad:init`, `/bmad:auto`, …) and
+`/bmad:init` copies the `bmad/` assets into the project on first use.
 
 **In this repository.** Just open it in Claude Code; everything is already in place.
 
