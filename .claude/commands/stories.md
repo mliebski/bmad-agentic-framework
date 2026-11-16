@@ -24,4 +24,4 @@ Create epics and stories. Input: $ARGUMENTS
 4. Show the user the epic list and story count, and the proposed build order.
 5. Run `node bmad/tools/bmad.mjs validate --gate G3` and `node bmad/tools/bmad.mjs trace`; have the product manager fix
    what they report (uncovered requirements, stories without criteria or `touches`, cycles).
-   Next: `/bmad-gate G3`.
+   Next: `/bmad:gate G3`.

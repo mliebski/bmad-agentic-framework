@@ -25,5 +25,5 @@ Initialise the BMAD workspace. Input from the user: $ARGUMENTS
    `pack add compliance`.
 7. Brownfield: recommend running the `documentation-writer` agent to produce
    `docs/03-solutioning/current-state.md` before discovery.
-8. Finish with the next command: `/bmad-discover` (or `/bmad-stories` on the quick track),
-   or `/bmad-auto` to let the framework drive to the first gate.
+8. Finish with the next command: `/bmad:discover` (or `/bmad:stories` on the quick track),
+   or `/bmad:auto` to let the framework drive to the first gate.

@@ -12,4 +12,4 @@ Run the UX step of phase 2. Input: $ARGUMENTS
    decision, then send the affected document back to its owner (`product-manager` or
    `ux-specialist`) to update. The PRD and UX spec must not contradict each other.
 4. Record the spec with `node bmad/tools/bmad.mjs artifact docs/02-planning/ux-spec.md review`. Next:
-   `/bmad-prototype` to test the design with synthetic users, `/bmad-redteam prd`, then `/bmad-gate G2`.
+   `/bmad:prototype` to test the design with synthetic users, `/bmad:redteam prd`, then `/bmad:gate G2`.

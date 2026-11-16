@@ -14,4 +14,4 @@ Run a multi-agent roundtable on: $ARGUMENTS
    and ask for a rebuttal or a concession, under 100 words.
 4. Present to the user: each position in one or two lines, where they agree, where they
    disagree and why, and your recommended decision.
-5. The user decides. If the decision changes an approved artifact, recommend `/bmad-change`.
+5. The user decides. If the decision changes an approved artifact, recommend `/bmad:change`.

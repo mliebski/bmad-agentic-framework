@@ -188,13 +188,13 @@ export function validate(root, gate, storyId) {
   const err = (code, msg) => E.push({ code, msg });
   const cfg = config(root);
   const st = loadStatus(root);
-  if (!st) { err('no-status', `${P.status} missing — run /bmad-init`); return { gate, errors: E, warnings: W }; }
+  if (!st) { err('no-status', `${P.status} missing — run /bmad:init`); return { gate, errors: E, warnings: W }; }
   const quick = st.track === 'quick';
   const need = (rel, code) => { const t = read(root, rel); if (t == null) { err(code || 'missing-artifact', `missing ${rel}`); return null; } for (const ph of PLACEHOLDERS) if (t.includes(ph)) err('placeholder', `${rel} still contains template placeholder ${ph}`); return t; };
   const review = (name) => {
     if (!asList(cfg.reviews.required).includes(name)) return;
     const t = read(root, `${P.reviews}/${name}.review.md`);
-    if (t == null) return err('no-review', `no adversarial review for ${name} — run /bmad-redteam ${name}`);
+    if (t == null) return err('no-review', `no adversarial review for ${name} — run /bmad:redteam ${name}`);
     const fm = frontmatter(t);
     if (fm.unresolved_critical !== 0) err('review-critical', `${name} review has ${fm.unresolved_critical ?? 'unknown'} unresolved critical finding(s)`);
   };
@@ -364,7 +364,8 @@ function hook() {
   try {
     if (input.hook_event_name === 'SessionStart') {
       const root = findRoot(input.cwd);
-      if (!root) console.log(`BMAD framework is available but this project has no bmad/ folder yet. /bmad-init must first run: node "${path.join(TOOL_DIR, 'install.mjs')}" . --assets-only`);
+      if (!root) console.log(`BMAD framework is available but this project has no bmad/ folder yet. /bmad:init must first run: node "${path.join(TOOL_DIR, 'install.mjs')}" . --assets-only`);
+      else if (fs.existsSync(path.join(root, P.status))) console.log('This is a BMAD project (' + P.status + '). Act as the BMAD orchestrator: follow the rules in the bmad:orchestrator skill (or CLAUDE.md), read state with the BMAD tool, and stop at gates for human approval.');
       return 0;
     }
     if (input.hook_event_name !== 'PreToolUse') return 0;
@@ -396,7 +397,7 @@ function hook() {
       const root = findRoot(input.cwd);
       const st = root && loadStatus(root);
       if (!st) return 0;
-      if (!['passed', 'waived'].includes(st.gates?.G3?.status)) return deny('developers cannot start before gate G3 (implementation readiness) has passed. Run /bmad-gate G3.');
+      if (!['passed', 'waived'].includes(st.gates?.G3?.status)) return deny('developers cannot start before gate G3 (implementation readiness) has passed. Run /bmad:gate G3.');
       const cfg = config(root); const locks = readJson(root, P.locks, {});
       const all = stories(root);
       for (const id of new Set(String(ti.prompt || '').match(/\bE\d+-S\d+\b/g) || [])) {

@@ -1,4 +1,4 @@
-# BMAD framework configuration. Edited by /bmad-init; safe to edit by hand.
+# BMAD framework configuration. Edited by /bmad:init; safe to edit by hand.
 # Read by bmad/tools/bmad.mjs — keep to simple "key: value" lines and inline [lists].
 
 project_name: ""
@@ -26,5 +26,5 @@ reviews:
   required: [prd, architecture]  # adversarial reviews that must exist with 0 unresolved criticals
 
 autopilot:
-  auto_pass: []             # gates /bmad-auto may pass itself when the validator is clean, e.g. [G1, G2]. Never G6.
+  auto_pass: []             # gates /bmad:auto may pass itself when the validator is clean, e.g. [G1, G2]. Never G6.
   max_rework: 2             # times a story may bounce between developer and QA before a human is asked

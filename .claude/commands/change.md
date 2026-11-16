@@ -19,5 +19,5 @@ Handle a change in requirements, a technical discovery, or a failed assumption: 
    architecture/ADRs → epics and stories (new, changed, or cancelled; `done` stories are
    never edited — add a follow-up story instead).
 5. Log it with `node bmad/tools/bmad.mjs change "<one line>"`. If an approved artifact changed materially,
-   re-run its gate (`/bmad-gate`) and its adversarial review. If acceptance criteria of a
+   re-run its gate (`/bmad:gate`) and its adversarial review. If acceptance criteria of a
    story changed, QA amends and re-locks that story's acceptance tests.

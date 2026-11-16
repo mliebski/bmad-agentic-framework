@@ -4,7 +4,7 @@ argument-hint: <G1|G2|G3|G5|G6>  (default — the current phase's gate)
 ---
 
 Run gate: $ARGUMENTS (if empty, the gate of the current phase from
-`node bmad/tools/bmad.mjs status`). G4 is per story and is run by `/bmad-qa <story>`.
+`node bmad/tools/bmad.mjs status`). G4 is per story and is run by `/bmad:qa <story>`.
 
 1. **Machine checks.** Run `node bmad/tools/bmad.mjs validate --gate <G>`. If it fails, stop
    here: show the failures, name the command that fixes each, and do not ask for approval —

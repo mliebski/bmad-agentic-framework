@@ -5,7 +5,7 @@ argument-hint: [optional — flows or personas to focus on]
 
 Prototype and test the design. Focus: $ARGUMENTS
 
-1. `docs/02-planning/ux-spec.md` must exist (`/bmad-ux`).
+1. `docs/02-planning/ux-spec.md` must exist (`/bmad:ux`).
 2. Delegate to `ux-specialist` in prototype mode →
    `docs/02-planning/prototype/index.html` and `docs/02-planning/prototype/tasks.md`.
 3. Read `tasks.md`. Spawn one `synthetic-user` per persona, in parallel (three to five;
@@ -24,4 +24,4 @@ Prototype and test the design. Focus: $ARGUMENTS
 7. Tell the user where the prototype is so they can open it in a browser themselves —
    their own five minutes with it, or one real user's, outweighs the synthetic walk.
    Record artifacts with `node bmad/tools/bmad.mjs artifact <path> review`.
-   Next: `/bmad-redteam prd`, then `/bmad-gate G2`.
+   Next: `/bmad:redteam prd`, then `/bmad:gate G2`.

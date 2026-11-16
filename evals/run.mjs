@@ -106,7 +106,10 @@ function main() {
     const target = (flag('to') && flag('to') !== true ? flag('to') : exp.target) || 'G3';
     const dir = path.join(HERE, 'runs', stamp, name);
     fs.mkdirSync(dir, { recursive: true });
-    for (const item of ['.claude', 'bmad', 'CLAUDE.md']) copy(path.join(REPO, item), path.join(dir, item));
+    // same route a user takes, so commands are /bmad-* and references are rewritten
+    const inst = sh(`node "${path.join(REPO, 'bmad/tools/install.mjs')}" "${dir}"`, REPO);
+    if (inst.status !== 0) throw new Error(`install failed: ${inst.stderr}`);
+    fs.rmSync(path.join(dir, 'bmad/packs'), { recursive: true, force: true });
     copy(path.join(projDir, name), path.join(dir, 'eval-input'));
     fs.rmSync(path.join(dir, 'eval-input', 'expectations.json'));   // the framework must not see the answer key
     sh('git init -q && git add -A && git -c user.name=eval -c user.email=eval@example.invalid commit -q -m "eval start"', dir);

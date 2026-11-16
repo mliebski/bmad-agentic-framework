@@ -7,7 +7,7 @@ import { findRoot, loadStatus, stories, wave, validate, trace, impact, storyCont
 
 const str = { type: 'string' };
 const TOOLS = [
-  { name: 'bmad_status', description: 'Project name, track, current phase, gate decisions, artifact states, open questions and change log.', inputSchema: { type: 'object', properties: {} }, run: (r) => loadStatus(r) ?? { error: 'not initialised — run /bmad-init' } },
+  { name: 'bmad_status', description: 'Project name, track, current phase, gate decisions, artifact states, open questions and change log.', inputSchema: { type: 'object', properties: {} }, run: (r) => loadStatus(r) ?? { error: 'not initialised — run /bmad:init' } },
   { name: 'bmad_validate', description: 'Run the machine checks for a gate (G1, G2, G3, G5, G6) or, with story, the story-done checks (G4). Returns errors and warnings.', inputSchema: { type: 'object', properties: { gate: str, story: str } }, run: (r, a) => validate(r, a.story ? 'G4' : a.gate, a.story) },
   { name: 'bmad_stories', description: 'All stories with status, requirements, dependencies and touched paths.', inputSchema: { type: 'object', properties: {} }, run: (r) => stories(r).map(({ text, section, ...s }) => s) },
   { name: 'bmad_wave', description: 'Stories that can be developed in parallel right now, stories that still need acceptance tests, and stories that are waiting with the reason.', inputSchema: { type: 'object', properties: { max: { type: 'number' } } }, run: (r, a) => wave(r, a.max) },

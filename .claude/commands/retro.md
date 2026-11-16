@@ -18,7 +18,7 @@ Close the loop after go-live. Input: $ARGUMENTS
    observations: what went well, what did not, metrics versus targets, process changes.
 4. Delegate to `product-manager`: prioritise the proposed backlog items and recommend the
    next iteration's scope.
-5. Present the recommendation. Next iteration: `/bmad-discover` for new problems,
-   `/bmad-prd` for extending the product, or `/bmad-stories` on the quick track for small
+5. Present the recommendation. Next iteration: `/bmad:discover` for new problems,
+   `/bmad:prd` for extending the product, or `/bmad:stories` on the quick track for small
    improvements. Once the user chooses, set the phase with `node bmad/tools/bmad.mjs phase <n>`.
-6. If the metrics show repeated gate failures or story rework, recommend `/bmad-improve`.
+6. If the metrics show repeated gate failures or story rework, recommend `/bmad:improve`.

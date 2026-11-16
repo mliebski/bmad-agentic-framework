@@ -5,20 +5,20 @@ in `bmad/templates/`. State is owned by the BMAD tool: `node bmad/tools/bmad.mjs
 
 | # | Phase | Command | Agents | Artifacts | Gate |
 |---|---|---|---|---|---|
-| 0 | Setup | `/bmad-init` | orchestrator | `docs/bmad-status.json`, folders | — |
-| 1 | Discovery | `/bmad-discover` | business-analyst (+ marketing-specialist) | `01-discovery/project-brief.md`, `research.md`, `requirements.md` | G1 |
-| 2 | Planning | `/bmad-prd`, `/bmad-ux`, `/bmad-prototype`, `/bmad-redteam prd` | product-manager, ux-specialist, synthetic-user, adversarial-reviewer | `02-planning/prd.md`, `ux-spec.md`, `prototype/`, `reviews/prd.review.md` | G2 |
-| 3 | Solutioning | `/bmad-architect`, `/bmad-stories`, `/bmad-redteam architecture` | solution-architect, product-manager, qa-tester, adversarial-reviewer | `03-solutioning/architecture.md`, `adr/`, `epics.md`, `test-strategy.md`, `04-implementation/stories/*.md`, `reviews/architecture.review.md` | G3 |
-| 4 | Implementation | `/bmad-sprint`, `/bmad-qa` | qa-tester (tests first), developer ×N, qa-tester (review) | locked acceptance tests, code, updated story files | G4 per story |
-| 5 | Release | `/bmad-release` | qa-tester, documentation-writer, solution-architect, marketing-specialist | `05-release/qa-report.md`, `release-notes.md`, `deployment-runbook.md`, `launch-plan.md`, `user-guide/` | G5 |
-| 6 | Go-live & operate | `/bmad-golive`, `/bmad-retro`, `/bmad-improve` | solution-architect, qa-tester, product-manager, business-analyst | `05-release/go-live-checklist.md`, `06-operate/retro.md`, `feedback-log.md` | G6 |
+| 0 | Setup | `/bmad:init` | orchestrator | `docs/bmad-status.json`, folders | — |
+| 1 | Discovery | `/bmad:discover` | business-analyst (+ marketing-specialist) | `01-discovery/project-brief.md`, `research.md`, `requirements.md` | G1 |
+| 2 | Planning | `/bmad:prd`, `/bmad:ux`, `/bmad:prototype`, `/bmad:redteam prd` | product-manager, ux-specialist, synthetic-user, adversarial-reviewer | `02-planning/prd.md`, `ux-spec.md`, `prototype/`, `reviews/prd.review.md` | G2 |
+| 3 | Solutioning | `/bmad:architect`, `/bmad:stories`, `/bmad:redteam architecture` | solution-architect, product-manager, qa-tester, adversarial-reviewer | `03-solutioning/architecture.md`, `adr/`, `epics.md`, `test-strategy.md`, `04-implementation/stories/*.md`, `reviews/architecture.review.md` | G3 |
+| 4 | Implementation | `/bmad:sprint`, `/bmad:qa` | qa-tester (tests first), developer ×N, qa-tester (review) | locked acceptance tests, code, updated story files | G4 per story |
+| 5 | Release | `/bmad:release` | qa-tester, documentation-writer, solution-architect, marketing-specialist | `05-release/qa-report.md`, `release-notes.md`, `deployment-runbook.md`, `launch-plan.md`, `user-guide/` | G5 |
+| 6 | Go-live & operate | `/bmad:golive`, `/bmad:retro`, `/bmad:improve` | solution-architect, qa-tester, product-manager, business-analyst | `05-release/go-live-checklist.md`, `06-operate/retro.md`, `feedback-log.md` | G6 |
 
-Any time: `/bmad-help` (what next), `/bmad-auto` (drive a phase to its gate), `/bmad-gate`
-(run a gate), `/bmad-change` (course correction), `/bmad-redteam` (adversarial review),
-`/bmad-party` (multi-agent roundtable).
+Any time: `/bmad:help` (what next), `/bmad:auto` (drive a phase to its gate), `/bmad:gate`
+(run a gate), `/bmad:change` (course correction), `/bmad:redteam` (adversarial review),
+`/bmad:party` (multi-agent roundtable).
 
 After go-live the loop restarts: feedback and retro items become input for the next
-`/bmad-discover` or go straight to `/bmad-stories` for small changes.
+`/bmad:discover` or go straight to `/bmad:stories` for small changes.
 
 ## Tracks
 
@@ -56,7 +56,7 @@ stories that can start now in parallel (dependencies done, acceptance tests lock
 `touches` not overlapping).
 
 `docs/bmad-metrics.jsonl` — every gate decision, refusal and story transition, appended by
-the tool. Input for `/bmad-improve`.
+the tool. Input for `/bmad:improve`.
 
 `docs/bmad-graph.json` — derived index of requirements, decisions, stories and tests
 (`bmad.mjs graph | trace | impact <id> | context <story>`). The documents stay the source

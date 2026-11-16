@@ -8,7 +8,7 @@ Run an implementation wave. Scope: $ARGUMENTS
 1. Run `node bmad/tools/bmad.mjs wave --json`. It returns `wave` (stories that can start now
    without touching the same files), `needs_tests` (ready, but QA has not locked acceptance
    tests yet) and `waiting` (with the reason). Restrict to the scope given, if any.
-   If G3 has not passed the developers will be refused — recommend `/bmad-gate G3`.
+   If G3 has not passed the developers will be refused — recommend `/bmad:gate G3`.
 2. **Tests first.** For every story in `needs_tests`, spawn a `qa-tester` in
    acceptance-tests-first mode with the story file path — all in one message, in parallel.
    When they return, run `wave --json` again. A story QA could not write tests for goes
@@ -33,7 +33,7 @@ Run an implementation wave. Scope: $ARGUMENTS
    `node bmad/tools/bmad.mjs story <id> done --accept-concerns`.
 8. Run `node bmad/tools/bmad.mjs stories` and report: done, failed, blocked, remaining. If
    `wave` still returns stories, offer the next wave; if every story is `done` or
-   `deferred`, recommend `/bmad-release`.
+   `deferred`, recommend `/bmad:release`.
 
 If a developer or QA reports that the plan itself is wrong (not just the code), stop the
-wave and recommend `/bmad-change`.
+wave and recommend `/bmad:change`.

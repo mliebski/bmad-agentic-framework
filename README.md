@@ -30,8 +30,10 @@ claude plugin marketplace add mliebski/bmad-agentic-framework
 claude plugin install bmad@bmad-agentic-framework
 ```
 
-Plugin commands are namespaced: `/bmad:init`, `/bmad:auto`, `/bmad:gate`. A copied install
-(above) uses `/bmad-init` and so on, which is what the rest of this README shows.
+Plugin commands are namespaced: `/bmad:init`, `/bmad:auto`, `/bmad:gate`; the orchestrator rules
+load from the `bmad:orchestrator` skill. A copied install (above) uses `/bmad-init` and so on,
+which is what the rest of this README shows. To try the plugin from a clone:
+`claude --plugin-dir /path/to/clone`.
 
 ## Start
 

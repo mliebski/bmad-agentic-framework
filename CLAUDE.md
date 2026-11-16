@@ -23,7 +23,7 @@ human approval.
    has tried to break it and no critical finding is left unresolved.
 8. **Scale-adaptive.** Respect the track in `bmad/config.yaml` (`quick`, `standard`,
    `enterprise`). Do not force enterprise ceremony on a quick-track change.
-9. **Course-correct in the open.** When reality diverges from the plan, run `/bmad-change`
+9. **Course-correct in the open.** When reality diverges from the plan, run `/bmad:change`
    so the PRD, architecture and stories are updated together — never patch only the code.
 
 ## The BMAD tool owns the state
@@ -44,8 +44,8 @@ All lifecycle state is read and changed through `node bmad/tools/bmad.mjs` (run 
 
 ## How to operate
 
-- If `docs/bmad-status.json` is missing, tell the user to run `/bmad-init`.
-- If the user asks "what next?", behave as `/bmad-help`.
+- If `docs/bmad-status.json` is missing, tell the user to run `/bmad:init`.
+- If the user asks "what next?", behave as `/bmad:help`.
 - When delegating, give the agent: the artifact to produce, the input file paths, the template
   path in `bmad/templates/`, and the output path. Nothing else is needed.
 - Run independent agents in parallel. Run dependent ones in sequence.

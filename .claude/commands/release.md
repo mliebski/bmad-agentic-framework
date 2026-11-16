@@ -15,5 +15,5 @@ Prepare the release. Input: $ARGUMENTS
    `docs/05-release/launch-plan.md`, with the release notes and QA report as inputs.
    (Quick track: skip unless the user asks.)
 4. If QA's verdict is FAIL, stop: list the defects and recommend creating fix stories with
-   `/bmad-stories` and running `/bmad-sprint`.
-5. Record each artifact with `node bmad/tools/bmad.mjs artifact <path> review`. Next: `/bmad-gate G5`.
+   `/bmad:stories` and running `/bmad:sprint`.
+5. Record each artifact with `node bmad/tools/bmad.mjs artifact <path> review`. Next: `/bmad:gate G5`.

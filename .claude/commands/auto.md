@@ -7,14 +7,14 @@ Drive the project forward without the user typing each command. Target: $ARGUMEN
 
 **Targets.** `gate` (default) — everything needed to reach the current phase's gate, then
 stop for the decision. `to <G>` — continue through gates up to and including `<G>`. `all` —
-continue to G5. Autopilot never performs go-live: phase 6 is always `/bmad-golive` with the
+continue to G5. Autopilot never performs go-live: phase 6 is always `/bmad:golive` with the
 human.
 
 **Loop.** Repeat until the target is reached or you must stop:
 
 1. `node bmad/tools/bmad.mjs status` and `validate --gate <current gate>` (phase 4: `wave`).
 2. Do the next missing step for the current phase by following the matching command's
-   instructions (`.claude/commands/bmad-*.md`) exactly as if the user had run it:
+   instructions (`.claude/commands/*.md`) exactly as if the user had run it:
 
    | Phase | Steps, in order |
    |---|---|
@@ -32,7 +32,7 @@ human.
    assumption where one is reasonable, and ask everything in **one batch** when the gate is
    reached. Stop earlier only for a question that blocks all further work or for anything
    irreversible or expensive to undo.
-5. **At the gate.** Run the judgement checks from `/bmad-gate`. Then:
+5. **At the gate.** Run the judgement checks from `/bmad:gate`. Then:
    - If the gate is listed in `autopilot.auto_pass` in `bmad/config.yaml`, the validator is
      clean, no judgement item fails and there are no open questions:
      `node bmad/tools/bmad.mjs gate <G> pass --by autopilot --notes "<summary of checks>"`
@@ -44,7 +44,7 @@ human.
 
 **Always stop and ask** when: a gate needs a human decision; a story has bounced more than
 `autopilot.max_rework` times; worktree branches are ready to merge; a developer or QA says
-the plan is wrong (`/bmad-change`); an agent wants to do something outside the project
+the plan is wrong (`/bmad:change`); an agent wants to do something outside the project
 folder or touching a real environment.
 
 **Answers file (`--answers <file>`, used by the eval harness and for unattended runs).**

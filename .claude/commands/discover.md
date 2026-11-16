@@ -5,7 +5,7 @@ argument-hint: [idea, notes, or paths to source material]
 
 Run phase 1 (Discovery). Input: $ARGUMENTS
 
-1. Run `node bmad/tools/bmad.mjs status`. If it reports no status file, stop and point to `/bmad-init`.
+1. Run `node bmad/tools/bmad.mjs status`. If it reports no status file, stop and point to `/bmad:init`.
 2. **Elicit first.** Before delegating, ask the user up to five focused questions about the
    problem, the users, success metrics, constraints and deadline — skip any already answered
    in the input or in existing discovery files.
@@ -19,4 +19,4 @@ Run phase 1 (Discovery). Input: $ARGUMENTS
 5. Relay the agents' open questions to the user; write the answers into the brief
    (via the business analyst if substantial).
 6. Record each artifact with `node bmad/tools/bmad.mjs artifact <path> review`, summarise the brief in five lines and
-   recommend `/bmad-gate G1`.
+   recommend `/bmad:gate G1`.

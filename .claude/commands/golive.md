@@ -24,4 +24,4 @@ step. You guide, record and verify.
    decision. The tool refuses G6 from autopilot and without a recorded GO in the checklist. Agree hypercare owner
    and duration; note them in the checklist.
 8. Remind: launch communication from `docs/05-release/launch-plan.md` is the user's to send.
-   Next: `/bmad-retro` after the hypercare period.
+   Next: `/bmad:retro` after the hypercare period.
